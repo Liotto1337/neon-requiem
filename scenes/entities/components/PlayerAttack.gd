@@ -79,6 +79,7 @@ func primary(aim: Vector2) -> void:
 		_:
 			_pulse(aim)
 	_ready_msec = now + int(Db.f(_attack, "cooldown") / maxf(0.01, GameState.stat("attack_speed_mult", 1.0)) * MSEC)
+	_player.call("animate", "attack")
 
 
 func _fire_bolt(aim: Vector2) -> bool:
@@ -138,6 +139,7 @@ func empowered(aim: Vector2) -> void:
 			done = _overclock()
 	if not done:
 		return
+	_player.call("animate", "attack")
 	var mult: float = GameState.stat("dash_cooldown_mult", 1.0) if _class == CLASS_MELEE else GameState.stat("cooldown_mult", 1.0)
 	_empowered_ready_msec = now + int(Db.f(_empowered, "cooldown") * mult * MSEC)
 
@@ -166,7 +168,7 @@ func _dash_strike(aim: Vector2) -> bool:
 	var params: Dictionary = {
 		"speed": 0.0, "radius": Db.f(_empowered, "radius") * GameState.stat("area_mult", 1.0),
 		"lifetime": duration, "pierce": PIERCE_ALL, "ghost": true, "attached": true,
-		"color": Db.s(_empowered, "color", "white"), "shape": "orb",
+		"color": Db.s(_empowered, "color", "white"), "shape": "orb", "sprite": "slash",
 	}
 	var damage: float = Db.f(_attack, "damage") * Db.f(_empowered, "damage_mult", 1.0)
 	attach(ShotFactory.player_shot(_origin(), _aim_dir(aim), damage, params))
@@ -207,7 +209,9 @@ func _start_reload() -> void:
 	if _reloading:
 		return
 	_reloading = true
-	_reload_done_msec = TimeService.deadline(Db.f(_attack, "reload_sec") / maxf(0.01, GameState.stat("attack_speed_mult", 1.0)))
+	var seconds: float = Db.f(_attack, "reload_sec") / maxf(0.01, GameState.stat("attack_speed_mult", 1.0))
+	_reload_done_msec = TimeService.deadline(seconds)
+	_player.call("animate", "reload", seconds, seconds)
 	emit_state()
 
 
@@ -218,6 +222,7 @@ func _parry(now: int) -> void:
 	_parry_until_msec = now + int(Db.f(_action, "window_sec") * MSEC)
 	_parry_countered = false
 	_action_ready_msec = now + int(Db.f(_action, "cooldown") * GameState.stat("cooldown_mult", 1.0) * MSEC)
+	_player.call("animate", "reload", 0.0, TimeService.until_sec(_action_ready_msec))
 	Signals.ring_fx_requested.emit(_origin(), Db.f(_action, "counter_radius") * 0.5, Db.glow("magenta"), Db.f(_action, "window_sec"))
 	emit_state()
 
@@ -240,5 +245,6 @@ func _recall(now: int) -> void:
 		Signals.cast_failed.emit(KIND_ACTION, -1, "cooldown")
 		return
 	_action_ready_msec = now + int(Db.f(_action, "cooldown") * GameState.stat("cooldown_mult", 1.0) * MSEC)
+	_player.call("animate", "reload", 0.0, TimeService.until_sec(_action_ready_msec))
 	Signals.drones_recall_requested.emit(Db.f(_action, "haste_sec"), Db.f(_action, "haste_mult", 1.0))
 	emit_state()

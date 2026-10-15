@@ -1,8 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scenes/entities/Player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scenes/entities/components/PlayerAttack.gd" id="2_attack"]
 [ext_resource type="Script" path="res://scenes/entities/components/AbilityCaster.gd" id="3_caster"]
+[ext_resource type="Script" path="res://scenes/entities/components/HeroAnimator.gd" id="4_animator"]
+[ext_resource type="Script" path="res://scenes/entities/components/ReloadBar.gd" id="5_reload"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
 radius = 11.0
@@ -39,3 +41,11 @@ script = ExtResource("2_attack")
 
 [node name="Caster" type="Node" parent="."]
 script = ExtResource("3_caster")
+
+[node name="Animator" type="Node" parent="."]
+script = ExtResource("4_animator")
+
+[node name="ReloadBar" type="Node2D" parent="."]
+visible = false
+z_index = 20
+script = ExtResource("5_reload")

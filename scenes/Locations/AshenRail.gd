@@ -26,29 +26,24 @@ func _launch_train(now: int, flavor: Dictionary) -> void:
 	var tile: float = float(floor_layer.tile_set.tile_size.y)
 	var row: float = Db.num(LootRoller.pick(GameState.rng, tracks))
 	var area: Rect2 = bounds()
-	var y: float = area.position.y + (row + 1.0) * tile
+	var y: float = area.position.y + (row + float(Db.i(Db.d(config, "layout"), "track_width", 2)) * 0.5) * tile
 	var direction: float = 1.0 if GameState.rng.randf() < 0.5 else -1.0
 	var length: float = Db.f(flavor, "train_length_px")
 	var warn: Line2D = Neon.ring(1.0, Db.glow(Db.s(flavor, "warn_color", "orange")), Db.f(flavor, "train_height_px") * 0.25)
 	warn.closed = false
 	warn.points = PackedVector2Array([Vector2(area.position.x, y), Vector2(area.end.x, y)])
 	add_child(warn)
-	var body: Node2D = _train_body(Vector2(length, Db.f(flavor, "train_height_px")), Db.s(flavor, "train_color", "amber"))
+	var body: Node2D = _train_body(direction)
 	body.position = Vector2(area.position.x - length if direction > 0.0 else area.end.x + length, y)
 	body.visible = false
 	add_child(body)
 	_trains.append({"body": body, "warn": warn, "direction": direction, "start_msec": now + int(Db.f(flavor, "train_warn_sec") * MSEC)})
 
 
-func _train_body(size: Vector2, color_name: String) -> Node2D:
-	var half: Vector2 = size * 0.5
-	var outline: PackedVector2Array = PackedVector2Array([-half, Vector2(half.x, -half.y), half, Vector2(-half.x, half.y)])
+func _train_body(direction: float) -> Node2D:
 	var body: Node2D = Node2D.new()
-	var fill: Polygon2D = Polygon2D.new()
-	fill.polygon = outline
-	fill.color = Db.color(color_name).darkened(Db.cfg_f("art.fill_darken"))
-	body.add_child(fill)
-	body.add_child(Neon.rim(outline, color_name, Db.cfg_f("art.edge_width") * 2.0))
+	var sprite: AnimatedSprite2D = Sprites.attach(body, "props/train", "move")
+	sprite.flip_h = direction < 0.0
 	return body
 
 

@@ -34,6 +34,7 @@ func _attach(spec: Dictionary) -> void:
 func cast_ability(slot: int, aim: Vector2) -> void:
 	var spec: Dictionary = AbilitySystem.try_cast(slot)
 	if not spec.is_empty():
+		_player.call("animate", "cast")
 		execute(spec, aim)
 
 
@@ -70,7 +71,7 @@ func _bolt(spec: Dictionary) -> Dictionary:
 	return {
 		"speed": Db.f(spec, "speed"), "radius": Db.f(spec, "radius"), "lifetime": Db.f(spec, "lifetime"),
 		"pierce": Db.i(spec, "pierce"), "color": Db.s(spec, "color", "white"), "shape": "bolt",
-		"source": Db.s(spec, "id"),
+		"sprite": Db.s(spec, "sprite", "bolt"), "source": Db.s(spec, "id"),
 	}
 
 
@@ -161,6 +162,7 @@ func _cast_orbit(spec: Dictionary) -> void:
 			"hit_interval": Db.f(spec, "hit_interval"), "orbit_radius": _area(Db.f(spec, "orbit_radius")),
 			"angular_speed": Db.f(spec, "angular_speed"), "phase": TAU * float(index) / float(count),
 			"ghost": true, "color": Db.s(spec, "color", "white"), "shape": "orb", "source": Db.s(spec, "id"),
+			"sprite": Db.s(spec, "sprite", "blade"),
 		}
 		_attach(ShotFactory.player_shot(_origin(), Vector2.RIGHT, Db.f(spec, "damage"), params))
 
@@ -193,6 +195,7 @@ func _cast_buff(spec: Dictionary) -> void:
 func use_item(slot: int, aim: Vector2) -> void:
 	var spec: Dictionary = ItemSystem.try_use_active(slot)
 	if not spec.is_empty():
+		_player.call("animate", "cast")
 		execute_item(spec, aim)
 
 

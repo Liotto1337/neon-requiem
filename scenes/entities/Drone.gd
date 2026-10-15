@@ -4,11 +4,11 @@ extends Node2D
 ## RMB overclock multiplies the fire rate. Stats come from the deploy_drone ability level.
 
 const Db = preload("res://core/Db.gd")
-const Neon = preload("res://core/Neon.gd")
+const Sprites = preload("res://core/Sprites.gd")
 const ShotFactory = preload("res://scenes/entities/components/ShotFactory.gd")
 const MSEC: float = 1000.0
-const BODY_SIZE: float = 16.0
 const RECALL_RING_SCALE: float = 2.0
+const BODY_SIZE: float = 24.0
 
 var owner_node: Node2D = null
 var stats: Dictionary = {}
@@ -37,7 +37,7 @@ func set_slot(index: int, count: int) -> void:
 
 
 func _ready() -> void:
-	Neon.build_body(_visual, "triangle", BODY_SIZE, "lime")
+	Sprites.attach(_visual, "allies/drone", "move", float(get_instance_id() % 13) / 13.0)
 	Signals.drones_recall_requested.connect(_on_recall)
 	Signals.drones_command.connect(_on_command)
 	if owner_node != null and is_instance_valid(owner_node):
@@ -76,6 +76,7 @@ func _fire(now: int) -> void:
 	var params: Dictionary = {
 		"speed": Db.f(stats, "speed"), "radius": Db.f(stats, "radius"), "lifetime": Db.f(stats, "lifetime"),
 		"pierce": Db.i(stats, "pierce"), "color": "lime", "shape": "bolt" if laser else "orb", "source": "drone",
+		"sprite": "bolt" if laser else "pellet",
 	}
 	var damage: float = Db.f(stats, "damage") * GameState.stat("drone_damage_mult", 1.0)
 	Signals.projectile_requested.emit(ShotFactory.player_shot(global_position, enemy.global_position - global_position, damage, params))

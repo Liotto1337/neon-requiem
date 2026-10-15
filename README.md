@@ -5,7 +5,7 @@ desktop 1920x1080 (`canvas_items` stretch), Russian UI. A run lasts ~20 minutes 
 locations, each with a miniboss (T+2 min) and a boss (T+5 min). The final boss opens a choice:
 bank the run currency in the hub, or loop with every item kept and difficulty x1.5.
 Every number lives in `data/*.json`; saves are `user://meta_save.json` and `user://run_save.json`.
-All art is procedural (Polygon2D / Line2D / generated tile atlas), so no PNG is needed to run.
+All art is code-drawn pixel art (no image model): Python generators in `tools/art/` write the PNGs in `assets/` and the sheet manifest `data/sprites.json`.
 
 ## Structure
 
@@ -17,15 +17,16 @@ All art is procedural (Polygon2D / Line2D / generated tile atlas), so no PNG is 
   - `SpawnDirector`, `WaveDirector` and `DamageCalc` are PURE: inputs in, results out, no node or GameState references.
   - `ItemSystem`, `AbilitySystem` and `LootRoller` hold the item / ability / loot rules.
   - `InputMapHelper` handles rebindable actions; `AudioBus` is a stub. There is no monetization (no purchases, no ads).
-- `core/` holds static helpers: `Db` (JSON tables), `Fmt` (text), `Neon` (procedural neon shapes).
+- `core/` holds static helpers: `Db` (JSON tables), `Fmt` (text), `Neon` (FX lines and rings), `Sprites` (sprite sheets, icons).
+- `assets/` holds the code-drawn art: `tiles/` (64×64 atlas), `sprites/` (heroes, enemies, allies, props, fx sheets), `icons/` (items, abilities, meta).
 - `scenes/`
   - `Hub.tscn` and `Run.tscn` are the two top-level scenes (scripts in `scenes/scripts/`, plus `RunSpawner`).
-  - `entities/`: `Player`, `Enemy`, `EliteEnemy` (inherits `Enemy` + `EliteModifier` component), `Boss`, `Projectile`, `Pickup`, `Drone`. Components: `PlayerAttack`, `AbilityCaster`, `ShotFactory`, `EliteModifier`.
+  - `entities/`: `Player`, `Enemy`, `EliteEnemy` (inherits `Enemy` + `EliteModifier` component), `Boss`, `Projectile`, `Pickup`, `Drone`. Components: `PlayerAttack`, `AbilityCaster`, `ShotFactory`, `EliteModifier`, `HeroAnimator` (8 hero animations), `ReloadBar`.
   - `ui/`: `HUD`, `LevelUpModal`, `InventoryOverlay`, `PauseMenu`, `GameOverModal`, `LoopChoiceModal`, `HeroDraftModal`. Components: `AbilitySlot`, `ItemCard`, `StatRow`, `ModalBase`.
-  - `fx/`: `EliteOutline.gdshader` (one outline shader for every enemy, coloured by elite modifiers), `DamageNumber`, `ScreenShake`.
-  - `Locations/`: five TileMapLayer scenes (`NeonSlums`, `DataCore`, `ChromeGardens`, `AshenRail`, `RequiemSpire`) with `LocationBase.gd` and per-location flavour scripts. `tiles/` holds the generated atlas and TileSet.
-- `data/`: config, heroes, abilities, items (with recipes), enemies, elites, bosses, locations, meta_tree, difficulty, tiles.
-- `tools/`: world builder, lint, strict compile check, smoke and soak tests.
+  - `fx/`: `SpriteFx.gdshader` (neon glow boost, hit flash, elite silhouette outline), `DamageNumber`, `ScreenShake`.
+  - `Locations/`: five TileMapLayer scenes (`NeonSlums`, `DataCore`, `ChromeGardens`, `AshenRail`, `RequiemSpire`) with `LocationBase.gd` and per-location flavour scripts. `tiles/` holds the TileSet built from `assets/tiles/neon_atlas.png`.
+- `data/`: config, heroes, abilities, items (with recipes), enemies, elites, bosses, locations, meta_tree, difficulty, tiles, sprites.
+- `tools/`: world builder, lint, strict compile check, smoke and soak tests; `tools/art/` (art generators, `rebuild.sh`), `tools/shots/` (screenshot tours for visual QA).
 - `TILE_SPEC.md` is the tile art spec (ids, atlas coords, collision, layers).
 - `obsidian/` is the project map for Obsidian.
 
@@ -57,7 +58,8 @@ WASD moves, the mouse aims, LMB attacks, RMB fires the empowered attack. R reloa
 ```bash
 GODOT=/path/to/Godot_v4.7 tools/check.sh            # lint, strict compile, smoke test (68 checks)
 GODOT=/path/to/Godot_v4.7 SOAK=1 tools/check.sh     # + 3-minute soak: 3 heroes x 5 locations
-godot --headless --path . res://tools/BuildWorld.tscn   # rebuild tile atlas, TileSet and locations
+godot --headless --path . res://tools/BuildWorld.tscn   # rebuild the TileSet and locations
+GODOT=/path/to/Godot_v4.7 tools/art/rebuild.sh     # redraw the art (python3 + numpy + Pillow; heroes need codeart2d), import, rebuild the world
 ```
 
 The smoke test covers the acceptance list: hub → run → draft, WASD / LMB / RMB / R / Z X C / 1–6 through the real input map, level-up draft and level-5 ultimate, elite outlines (single / dual / rainbow), shield and antiheal, tier +1 per 60 s with scaling, miniboss at 2:00 and boss at 5:00, seamless transition, final boss → loop (x1.5, items kept, tier cap +20%), death → hub with meta bank and skill-tree purchase, and the purity of the PURE modules.

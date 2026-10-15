@@ -35,6 +35,7 @@ func level_stats(id: String, level: int) -> Dictionary:
 	out["level"] = clamped
 	out["kind"] = Db.s(data, "kind")
 	out["color"] = Db.s(data, "color", "white")
+	out["sprite"] = Db.s(data, "sprite")
 	return out
 
 

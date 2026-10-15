@@ -1,13 +1,17 @@
 extends CharacterBody2D
 ## Player hero: WASD movement, mouse aim, input dispatch to the attack and ability components,
-## dash / blink movement, i-frames, contact damage polling. Talks to the run only through
-## GameState methods and Signals; the Run calls setup() and set_bounds().
+## dash / blink movement, i-frames, contact damage polling, the sprite animator and the reload
+## bar. Talks to the run only through GameState methods and Signals; the Run calls setup()
+## and set_bounds().
 
 const Db = preload("res://core/Db.gd")
-const Neon = preload("res://core/Neon.gd")
+const Sprites = preload("res://core/Sprites.gd")
 const MSEC: float = 1000.0
 const FLASH_ENERGY: float = 3.0
 const IFRAME_ALPHA: float = 0.55
+const SHADOW_ALPHA: float = 0.5
+const SHADOW_SCALE: float = 1.4
+const SHADOW_DROP: float = 22.0
 
 var hero: Dictionary = {}
 var aim_position: Vector2 = Vector2.ZERO
@@ -18,6 +22,7 @@ var _iframes_until_msec: int = 0
 var _contact_ready_msec: int = 0
 var _flash_until_msec: int = 0
 var _input_enabled: bool = true
+var _last_level: int = 0
 
 @onready var _visual: Node2D = $Visual
 @onready var _hurtbox: Area2D = $Hurtbox
@@ -25,14 +30,47 @@ var _input_enabled: bool = true
 @onready var _attack: Node = $Attack
 @onready var _caster: Node = $Caster
 @onready var orbit_root: Node2D = $Orbit
+@onready var animator: Node = $Animator
+@onready var _reload_bar: Node2D = $ReloadBar
 
 
 func setup(hero_id: String) -> void:
 	hero = Db.entry("heroes", "heroes", hero_id)
-	Neon.build_body(_visual, Db.s(hero, "shape", "diamond"), Db.f(hero, "size"), Db.s(hero, "color", "cyan"))
+	_add_shadow()
+	animator.call("setup", self, _visual, Db.s(hero, "id"))
+	_reload_bar.set("color", Db.glow(Db.s(hero, "color", "cyan")))
+	_reload_bar.position = Vector2(0.0, -Db.cfg_f("ui.reload_bar_offset"))
+	_reload_bar.visible = false
 	_aim_line.default_color = Db.glow(Db.s(hero, "color", "cyan"))
+	_last_level = Db.i(GameState.resources, "level")
+	if not Signals.resources_changed.is_connected(_on_resources):
+		Signals.resources_changed.connect(_on_resources)
 	_attack.call("setup", self, hero)
 	_caster.call("setup", self)
+
+
+func _add_shadow() -> void:
+	var shadow: AnimatedSprite2D = Sprites.make("fx/shadow")
+	shadow.name = "Shadow"
+	shadow.scale = Vector2.ONE * SHADOW_SCALE
+	shadow.position = Vector2(0.0, SHADOW_DROP)
+	shadow.modulate.a = SHADOW_ALPHA
+	_visual.add_child(shadow)
+
+
+## Sprite + reload bar feedback. kind: attack | cast | levelup | hurt | reload.
+## anim_sec stretches the reload clip (0 = native); bar_sec > 0 shows the reload bar.
+func animate(kind: String, anim_sec: float = 0.0, bar_sec: float = 0.0) -> void:
+	animator.call("play", kind, anim_sec)
+	if bar_sec > 0.0:
+		_reload_bar.call("start", bar_sec)
+
+
+func _on_resources(resources: Dictionary) -> void:
+	var level: int = Db.i(resources, "level")
+	if level > _last_level and _last_level > 0:
+		animate("levelup")
+	_last_level = level
 
 
 func set_bounds(bounds: Rect2) -> void:
@@ -124,6 +162,7 @@ func receive_hit(hit: Dictionary) -> Dictionary:
 	grant_iframes(Db.cfg_f("player.hit_iframes_sec"))
 	_flash_until_msec = TimeService.deadline(Db.cfg_f("player.flash_sec"))
 	Signals.screen_shake_requested.emit(Db.cfg_f("player.hurt_shake"), Db.cfg_f("player.hurt_shake_sec"))
+	animate("hurt")
 	_answer_attacker(hit.get("attacker"), result)
 	return result
 
@@ -160,15 +199,19 @@ func _receive_contact(hit: Dictionary) -> void:
 	result["contact"] = true
 	grant_iframes(Db.cfg_f("player.hit_iframes_sec"))
 	_flash_until_msec = TimeService.deadline(Db.cfg_f("player.flash_sec"))
+	animate("hurt")
 	Signals.screen_shake_requested.emit(Db.cfg_f("player.hurt_shake"), Db.cfg_f("player.hurt_shake_sec"))
 	_answer_attacker(hit.get("attacker"), result)
 
 
 func _update_visuals() -> void:
 	var now: int = TimeService.run_msec()
+	var body: CanvasItem = animator.get("sprite")
+	if body == null:
+		return
 	if now < _flash_until_msec:
-		_visual.modulate = Color(FLASH_ENERGY, FLASH_ENERGY, FLASH_ENERGY)
+		body.modulate = Color(FLASH_ENERGY, FLASH_ENERGY, FLASH_ENERGY)
 	else:
-		_visual.modulate = Color(1.0, 1.0, 1.0, IFRAME_ALPHA if has_iframes() else 1.0)
+		body.modulate = Color(1.0, 1.0, 1.0, IFRAME_ALPHA if has_iframes() else 1.0)
 	var direction: Vector2 = (aim_position - global_position).normalized()
 	_aim_line.points = PackedVector2Array([direction * Db.f(hero, "size") * 0.6, direction * Db.cfg_f("player.aim_line_px")])

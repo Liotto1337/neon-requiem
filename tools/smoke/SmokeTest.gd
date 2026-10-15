@@ -194,7 +194,7 @@ func _spawn_elite(mods: Array) -> Node:
 
 
 func _outline(enemy: Node) -> ShaderMaterial:
-	return (enemy.get("outline_fx") as ColorRect).material
+	return (enemy.get("body") as CanvasItem).material as ShaderMaterial
 
 
 func _test_elites() -> void:
@@ -202,10 +202,10 @@ func _test_elites() -> void:
 	var single: Node = _spawn_elite(["berserk"])
 	var rainbow: Node = _spawn_elite(["aura", "vampiric", "explosive"])
 	await _frames(2)
-	_check("elite outline visible", (dual.get("outline_fx") as ColorRect).visible)
-	_check("2 mods -> dual outline (red + blue)", int(_outline(dual).get_shader_parameter("mode")) == 1 and _color_close(_outline(dual).get_shader_parameter("color_a"), Db.glow("red")) and _color_close(_outline(dual).get_shader_parameter("color_b"), Db.glow("blue")))
-	_check("1 mod -> single colour (berserk orange)", int(_outline(single).get_shader_parameter("mode")) == 0 and _color_close(_outline(single).get_shader_parameter("color_a"), Db.glow("orange")))
-	_check("3 mods -> rainbow", int(_outline(rainbow).get_shader_parameter("mode")) == 2)
+	_check("elite sprite outline on", _outline(dual) != null and int(_outline(dual).get_shader_parameter("outline_mode")) >= 0)
+	_check("2 mods -> dual outline (red + blue)", int(_outline(dual).get_shader_parameter("outline_mode")) == 1 and _color_close(_outline(dual).get_shader_parameter("color_a"), Db.glow("red")) and _color_close(_outline(dual).get_shader_parameter("color_b"), Db.glow("blue")))
+	_check("1 mod -> single colour (berserk orange)", int(_outline(single).get_shader_parameter("outline_mode")) == 0 and _color_close(_outline(single).get_shader_parameter("color_a"), Db.glow("orange")))
+	_check("3 mods -> rainbow", int(_outline(rainbow).get_shader_parameter("outline_mode")) == 2)
 	var shield: float = float(dual.get("shield"))
 	var hp: float = float(dual.get("hp"))
 	dual.call("receive_hit", {"damage": 1.0, "faction": "player"})

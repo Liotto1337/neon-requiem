@@ -2,7 +2,7 @@
 	"max_level": 5,
 	"abilities": [
 		{
-			"id": "piercing_shot",
+			"id": "piercing_shot", "sprite": "lance",
 			"name": "Пробивающий выстрел",
 			"desc": "Тяжёлый снаряд прошивает врагов насквозь.",
 			"ultimate_desc": "УЛЬТ: пробивает всех и раскалывается на 3 осколка при попадании.",
@@ -15,7 +15,7 @@
 			"ultimate": {"pierce": 99, "split": 3, "split_damage_mult": 0.5}
 		},
 		{
-			"id": "rail_volley",
+			"id": "rail_volley", "sprite": "bolt",
 			"name": "Рельсовый залп",
 			"desc": "Веер из нескольких бронебойных пуль.",
 			"ultimate_desc": "УЛЬТ: три залпа подряд.",
@@ -93,7 +93,7 @@
 			"ultimate": {"laser": true, "pierce": 99, "speed": 1800.0}
 		},
 		{
-			"id": "swarm_missiles",
+			"id": "swarm_missiles", "sprite": "rocket",
 			"name": "Рой ракет",
 			"desc": "Самонаводящиеся ракеты ищут ближайших врагов.",
 			"ultimate_desc": "УЛЬТ: ракеты взрываются по площади.",
@@ -106,7 +106,7 @@
 			"ultimate": {"blast_radius": 90.0, "blast_damage_mult": 0.8}
 		},
 		{
-			"id": "orbit_blades",
+			"id": "orbit_blades", "sprite": "blade",
 			"name": "Орбитальные лезвия",
 			"desc": "Лезвия кружат вокруг героя.",
 			"ultimate_desc": "УЛЬТ: восемь лезвий на широкой орбите.",
@@ -119,7 +119,7 @@
 			"ultimate": {"orbit_radius": 170.0, "count": 8}
 		},
 		{
-			"id": "nova_burst",
+			"id": "nova_burst", "sprite": "orb",
 			"name": "Нова",
 			"desc": "Кольцо снарядов во все стороны.",
 			"ultimate_desc": "УЛЬТ: три кольца подряд.",

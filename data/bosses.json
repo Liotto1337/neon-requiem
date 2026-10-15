@@ -6,7 +6,7 @@
 	"bosses": [
 		{
 			"id": "slum_enforcer", "name": "Вышибала трущоб", "kind": "miniboss", "location": "neon_slums",
-			"shape": "square", "size": 64, "scale": 1.0, "color": "magenta", "outline": "white",
+			"shape": "square", "size": 64, "scale": 1.7, "color": "magenta", "outline": "white",
 			"hp": 900.0, "contact_damage": 14.0, "speed": 85.0, "armor": 5.0,
 			"rewards": {"currency": 40, "xp": 40.0, "item_min_rarity": 1},
 			"phases": [
@@ -35,7 +35,7 @@
 		},
 		{
 			"id": "core_sentinel", "name": "Страж ядра", "kind": "miniboss", "location": "data_core",
-			"shape": "diamond", "size": 64, "scale": 1.0, "color": "cyan", "outline": "white",
+			"shape": "diamond", "size": 64, "scale": 1.7, "color": "cyan", "outline": "white",
 			"hp": 1000.0, "contact_damage": 14.0, "speed": 60.0, "armor": 8.0,
 			"rewards": {"currency": 45, "xp": 45.0, "item_min_rarity": 1},
 			"phases": [
@@ -64,7 +64,7 @@
 		},
 		{
 			"id": "thorn_matriarch", "name": "Терновая матрона", "kind": "miniboss", "location": "chrome_gardens",
-			"shape": "hex", "size": 64, "scale": 1.0, "color": "lime", "outline": "white",
+			"shape": "hex", "size": 64, "scale": 1.7, "color": "lime", "outline": "white",
 			"hp": 1100.0, "contact_damage": 15.0, "speed": 70.0, "armor": 6.0,
 			"rewards": {"currency": 45, "xp": 45.0, "item_min_rarity": 1},
 			"phases": [
@@ -92,7 +92,7 @@
 		},
 		{
 			"id": "furnace_drone", "name": "Печной дрон", "kind": "miniboss", "location": "ashen_rail",
-			"shape": "triangle", "size": 64, "scale": 1.0, "color": "amber", "outline": "white",
+			"shape": "triangle", "size": 64, "scale": 1.7, "color": "amber", "outline": "white",
 			"hp": 1000.0, "contact_damage": 15.0, "speed": 95.0, "armor": 6.0,
 			"rewards": {"currency": 45, "xp": 45.0, "item_min_rarity": 1},
 			"phases": [
@@ -121,7 +121,7 @@
 		},
 		{
 			"id": "spire_herald", "name": "Глашатай шпиля", "kind": "miniboss", "location": "requiem_spire",
-			"shape": "diamond", "size": 64, "scale": 1.0, "color": "white", "outline": "purple",
+			"shape": "diamond", "size": 64, "scale": 1.7, "color": "white", "outline": "purple",
 			"hp": 1300.0, "contact_damage": 16.0, "speed": 75.0, "armor": 8.0,
 			"rewards": {"currency": 60, "xp": 50.0, "item_min_rarity": 2},
 			"phases": [

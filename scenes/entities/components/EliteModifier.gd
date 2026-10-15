@@ -1,16 +1,17 @@
 extends Node2D
-## Elite modifier component: paints the outline glow (one colour per modifier, two colours for
-## two modifiers, rainbow for three+), pulses the damage aura, applies antiheal near the
-## player, heals the elite on hits (vampiric) and leaves a blast on death (explosive).
+## Elite modifier component: paints the silhouette outline (one colour per modifier, two
+## colours for two modifiers, rainbow for three+) through the shared SpriteFx shader, pulses
+## the damage aura, applies antiheal near the player, heals the elite on hits (vampiric) and
+## leaves a blast on death (explosive).
 
 const Db = preload("res://core/Db.gd")
 const ShotFactory = preload("res://scenes/entities/components/ShotFactory.gd")
+const Sprites = preload("res://core/Sprites.gd")
 const MSEC: float = 1000.0
 const PERCENT: float = 100.0
 const MODE_SINGLE: int = 0
 const MODE_DUAL: int = 1
 const MODE_RAINBOW: int = 2
-const RING_INSET: float = 0.4
 
 var _enemy: Node2D = null
 var _mods: Array = []
@@ -26,34 +27,28 @@ func attach(enemy: Node2D, mods: Array) -> void:
 		var mod: Dictionary = Db.entry("elites", "modifiers", str(id))
 		_effects[str(id)] = Db.d(mod, "effect")
 		colors.append(Db.glow(Db.s(mod, "color", "white")))
-	apply_outline(enemy.get("outline_fx"), colors, float(enemy.get("size_px")))
+	apply_outline(enemy.get("body"), colors)
 
 
-## Configures the shared EliteOutline shader on `rect` for the given glow colours.
-static func apply_outline(rect: ColorRect, colors: Array, size_px: float) -> void:
-	if rect == null or colors.is_empty():
+## Gives `body` (the enemy sprite) its own outline material for the given glow colours.
+static func apply_outline(body: CanvasItem, colors: Array) -> void:
+	if body == null or colors.is_empty():
 		return
-	var pad: float = Db.cfg_f("art.outline_pad_px")
-	var side: float = size_px + pad * 2.0
-	rect.size = Vector2(side, side)
-	rect.position = -rect.size * 0.5
-	var shader_material: ShaderMaterial = (rect.material as ShaderMaterial).duplicate()
-	rect.material = shader_material
 	var rainbow_from: int = Db.i(Db.d(Db.table("elites"), "base"), "rainbow_from")
 	var mode: int = MODE_RAINBOW if colors.size() >= rainbow_from else (MODE_DUAL if colors.size() == 2 else MODE_SINGLE)
-	shader_material.set_shader_parameter("color_a", colors[0])
-	shader_material.set_shader_parameter("color_b", colors[1] if colors.size() > 1 else colors[0])
-	shader_material.set_shader_parameter("mode", mode)
-	shader_material.set_shader_parameter("ring_radius", (size_px * 0.5 + pad * RING_INSET) / side)
-	shader_material.set_shader_parameter("thickness", Db.cfg_f("art.outline_thickness"))
-	shader_material.set_shader_parameter("pixel_steps", Db.cfg_f("art.outline_pixel_steps"))
-	shader_material.set_shader_parameter("energy", Db.cfg_f("glow.hdr_energy") * Db.f(Db.d(Db.table("elites"), "base"), "outline_boost", 1.0))
-	rect.visible = true
+	var energy: float = Db.cfg_f("glow.hdr_energy") * Db.f(Db.d(Db.table("elites"), "base"), "outline_boost", 1.0)
+	body.material = Sprites.outline_material(colors, mode, energy)
+
+
+## -1 without an outline, else MODE_SINGLE / MODE_DUAL / MODE_RAINBOW.
+static func outline_mode_of(body: CanvasItem) -> int:
+	if body == null or not body.material is ShaderMaterial:
+		return -1
+	return int((body.material as ShaderMaterial).get_shader_parameter("outline_mode"))
 
 
 func outline_mode() -> int:
-	var rect: ColorRect = _enemy.get("outline_fx")
-	return int((rect.material as ShaderMaterial).get_shader_parameter("mode"))
+	return outline_mode_of(_enemy.get("body"))
 
 
 func has_mod(mod_id: String) -> bool:

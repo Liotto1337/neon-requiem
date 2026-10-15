@@ -64,6 +64,7 @@ static func enemy_shot(origin: Vector2, direction: Vector2, shot: Dictionary, da
 		"lifetime": Db.f(shot, "lifetime"),
 		"color": Db.s(shot, "color", "magenta"),
 		"shape": "orb",
+		"sprite": Db.s(shot, "sprite", "orb"),
 	}
 	spec.merge(extras, true)
 	return spec

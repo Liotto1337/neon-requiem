@@ -12,13 +12,15 @@ extends Area2D
 
 const Db = preload("res://core/Db.gd")
 const Neon = preload("res://core/Neon.gd")
+const Sprites = preload("res://core/Sprites.gd")
 const ShotFactory = preload("res://scenes/entities/components/ShotFactory.gd")
 const MSEC: float = 1000.0
 const FACTION_PLAYER: String = "player"
-const BOLT_LENGTH: float = 4.0
-const ORB_SCALE: float = 2.0
 const ZONE_FILL_ALPHA: float = 0.12
-const ARC_STEPS: int = 9
+const DEFAULT_SPRITES: Dictionary = {"bolt": "bolt", "arc": "slash", "orb": "orb"}
+## Collision radius each projectile sheet is drawn for; the sprite scales from it.
+const NOMINAL_RADIUS: Dictionary = {"bolt": 5.0, "lance": 8.0, "orb": 8.0, "pellet": 4.0, "needle": 4.0, "rocket": 6.0, "blade": 12.0, "slash": 45.0}
+const SCALE_STEP: float = 0.25
 
 var spec: Dictionary = {}
 var _velocity: Vector2 = Vector2.ZERO
@@ -83,16 +85,18 @@ func _target_mask() -> int:
 func _build_visual() -> void:
 	var color_name: String = Db.s(spec, "color", "white")
 	var radius: float = maxf(1.0, Db.f(spec, "radius"))
-	if bool(spec.get("blast", false)) or Db.f(spec, "hit_interval") > 0.0:
+	var orbiting: bool = Db.f(spec, "orbit_radius") > 0.0
+	if bool(spec.get("blast", false)) or (Db.f(spec, "hit_interval") > 0.0 and not orbiting):
 		_build_zone(radius, color_name)
 		return
-	match Db.s(spec, "shape", "orb"):
-		"bolt":
-			Neon.build_body(_visual, "bolt", radius * BOLT_LENGTH, color_name)
-		"arc":
-			_build_arc(radius, color_name)
-		_:
-			Neon.build_body(_visual, "circle", radius * ORB_SCALE, color_name)
+	var sprite_name: String = Db.s(spec, "sprite")
+	if sprite_name == "":
+		sprite_name = str(DEFAULT_SPRITES.get(Db.s(spec, "shape", "orb"), "orb"))
+	var sprite: AnimatedSprite2D = Sprites.attach(_visual, "fx/" + sprite_name)
+	sprite.material = null
+	sprite.modulate = Db.glow(color_name)
+	var size: float = radius / float(NOMINAL_RADIUS.get(sprite_name, 8.0))
+	_visual.scale = Vector2.ONE * maxf(SCALE_STEP * 2.0, snappedf(size, SCALE_STEP))
 
 
 func _build_zone(radius: float, color_name: String) -> void:
@@ -103,18 +107,6 @@ func _build_zone(radius: float, color_name: String) -> void:
 	fill.color = tint
 	_visual.add_child(fill)
 	_visual.add_child(Neon.ring(radius, Db.glow(color_name), Db.cfg_f("fx.ring_width")))
-
-
-func _build_arc(radius: float, color_name: String) -> void:
-	var half: float = deg_to_rad(Db.f(spec, "arc_deg")) * 0.5
-	var line: Line2D = Line2D.new()
-	for step: int in ARC_STEPS:
-		var t: float = float(step) / float(ARC_STEPS - 1)
-		line.add_point(Vector2.RIGHT.rotated(lerpf(-half, half, t)) * radius)
-	line.width = Db.cfg_f("fx.beam_width") * 2.0
-	line.default_color = Db.glow(color_name)
-	line.antialiased = false
-	_visual.add_child(line)
 
 
 func _physics_process(delta: float) -> void:

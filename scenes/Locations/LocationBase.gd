@@ -6,6 +6,7 @@ extends Node2D
 
 const Db = preload("res://core/Db.gd")
 const Neon = preload("res://core/Neon.gd")
+const Sprites = preload("res://core/Sprites.gd")
 const MSEC: float = 1000.0
 const COLLISION_KEY: String = "collision"
 const KIND_NONE: String = "none"
@@ -32,6 +33,8 @@ func _ready() -> void:
 		push_error("Location: unknown location_id '%s'" % location_id)
 	floor_tint = Db.color(Db.s(config, "floor_modulate", "white"))
 	floor_layer.modulate = floor_tint
+	for layer: TileMapLayer in [floor_layer, wall_layer, decor_layer]:
+		layer.material = Sprites.FX_MATERIAL
 	_on_ready_flavor()
 
 

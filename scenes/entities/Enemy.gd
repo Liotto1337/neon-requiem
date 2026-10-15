@@ -4,7 +4,7 @@ extends CharacterBody2D
 ## before adding the node and passes the target; the enemy never looks nodes up itself.
 
 const Db = preload("res://core/Db.gd")
-const Neon = preload("res://core/Neon.gd")
+const Sprites = preload("res://core/Sprites.gd")
 const ShotFactory = preload("res://scenes/entities/components/ShotFactory.gd")
 const MSEC: float = 1000.0
 const PERCENT: float = 100.0
@@ -17,7 +17,11 @@ const KEEP_FAR: float = 1.1
 const KEEP_NEAR: float = 0.8
 const STRAFE: float = 0.5
 const SPINNER_DRIFT: float = 0.4
-const FLASH_ENERGY: float = 2.5
+const FLASH_ENERGY: float = 2.0
+const SHADOW_ALPHA: float = 0.45
+const SHADOW_WIDTH_RATIO: float = 0.9
+const SHADOW_DROP_RATIO: float = 0.42
+const FACING_DEADZONE: float = 4.0
 
 var cfg: Dictionary = {}
 var enemy_id: String = ""
@@ -53,10 +57,10 @@ var _dash_dir: Vector2 = Vector2.ZERO
 var _flash_until_msec: int = 0
 var _strafe_sign: float = 1.0
 var _dead: bool = false
+var body: AnimatedSprite2D = null
 
 @onready var _collision: CollisionShape2D = $Collision
 @onready var _visual: Node2D = $Visual
-@onready var outline_fx: ColorRect = $OutlineFx
 @onready var _hp_bar: Line2D = $HpBar
 
 
@@ -77,10 +81,29 @@ func _ready() -> void:
 	var shape: CircleShape2D = CircleShape2D.new()
 	shape.radius = size_px * BODY_RADIUS_RATIO
 	_collision.shape = shape
-	Neon.build_body(_visual, Db.s(cfg, "shape", "square"), size_px, Db.s(cfg, "color", "magenta"))
+	body = Sprites.attach(_visual, sprite_id(), "move", float(get_instance_id() % 97) / 97.0)
+	_add_shadow()
 	var cooldown: float = Db.f(Db.d(cfg, "shot"), "cooldown")
 	_next_shot_msec = TimeService.run_msec() + int(cooldown * MSEC * GameState.rng.randf())
 	_strafe_sign = 1.0 if GameState.rng.randf() < 0.5 else -1.0
+
+
+## Sheet id in data/sprites.json: enemies and bosses share the "enemies/" group.
+func sprite_id() -> String:
+	return "enemies/" + enemy_id
+
+
+func _add_shadow() -> void:
+	var shadow: AnimatedSprite2D = Sprites.make("fx/shadow")
+	shadow.name = "Shadow"
+	var width: float = Sprites.frame_size("fx/shadow").x
+	var art_width: float = maxf(size_px, Sprites.frame_size(sprite_id()).x * 0.5)
+	shadow.scale = Vector2.ONE * (art_width * SHADOW_WIDTH_RATIO / maxf(1.0, width))
+	shadow.position = Vector2(0.0, Sprites.frame_size(sprite_id()).y * SHADOW_DROP_RATIO)
+	shadow.modulate.a = SHADOW_ALPHA
+	shadow.z_index = -1
+	_visual.add_child(shadow)
+	_visual.move_child(shadow, 0)
 
 
 func is_dead() -> bool:
@@ -102,7 +125,9 @@ func _physics_process(delta: float) -> void:
 	_knockback = _knockback.move_toward(Vector2.ZERO, Db.cfg_f("combat.knockback_decay") * delta)
 	_pull = _pull.lerp(Vector2.ZERO, clampf(Db.cfg_f("combat.pull_decay") * delta, 0.0, 1.0))
 	var flash: bool = now < _flash_until_msec
-	_visual.modulate = Color(FLASH_ENERGY, FLASH_ENERGY, FLASH_ENERGY) if flash else Color.WHITE
+	body.modulate = Color(FLASH_ENERGY, FLASH_ENERGY, FLASH_ENERGY) if flash else Color.WHITE
+	if absf(velocity.x) > FACING_DEADZONE:
+		body.flip_h = velocity.x < 0.0
 
 
 ## Movement direction for this frame (length 1 = base speed). Also fires shots.
@@ -272,7 +297,7 @@ func _update_hp_bar() -> void:
 	if not _hp_bar.visible:
 		return
 	var width: float = Db.f(Db.d(Db.table("elites"), "base"), "hp_bar_width")
-	var y: float = -size_px * HP_BAR_OFFSET
+	var y: float = -maxf(size_px * HP_BAR_OFFSET, Sprites.frame_size(sprite_id()).y * 0.5 - 4.0)
 	var fraction: float = clampf(hp / maxf(1.0, hp_max), 0.0, 1.0)
 	_hp_bar.points = PackedVector2Array([Vector2(-width * 0.5, y), Vector2(-width * 0.5 + width * fraction, y)])
 	_hp_bar.default_color = Db.glow("blue" if shield > 0.0 else "red")

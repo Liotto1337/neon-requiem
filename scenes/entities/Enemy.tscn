@@ -1,10 +1,6 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://scenes/entities/Enemy.gd" id="1_script"]
-[ext_resource type="Shader" path="res://scenes/fx/EliteOutline.gdshader" id="2_outline"]
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_outline"]
-shader = ExtResource("2_outline")
 
 [node name="Enemy" type="CharacterBody2D"]
 collision_layer = 2
@@ -13,11 +9,6 @@ motion_mode = 1
 script = ExtResource("1_script")
 
 [node name="Collision" type="CollisionShape2D" parent="."]
-
-[node name="OutlineFx" type="ColorRect" parent="."]
-visible = false
-material = SubResource("ShaderMaterial_outline")
-mouse_filter = 2
 
 [node name="Visual" type="Node2D" parent="."]
 

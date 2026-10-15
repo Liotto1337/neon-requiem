@@ -44,7 +44,7 @@ func setup_boss(boss: Dictionary, target_node: Node2D, tier_scaling: Dictionary)
 func _ready() -> void:
 	super._ready()
 	_home = global_position
-	EliteModifier.apply_outline(outline_fx, [Db.glow(Db.s(boss_cfg, "outline", "white"))], size_px)
+	EliteModifier.apply_outline(body, [Db.glow(Db.s(boss_cfg, "outline", "white"))])
 	_next_attack_msec = TimeService.run_msec() + int(Db.f(Db.table("bosses"), "phase_invuln_sec") * MSEC)
 	_telegraph.visible = false
 	_laser.visible = false

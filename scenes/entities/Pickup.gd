@@ -3,12 +3,13 @@ extends Area2D
 ## the pickup radius (or always after a magnet), applies itself through GameState on touch.
 
 const Db = preload("res://core/Db.gd")
-const Neon = preload("res://core/Neon.gd")
+const Sprites = preload("res://core/Sprites.gd")
 const KIND_XP: String = "xp"
 const KIND_CURRENCY: String = "currency"
 const KIND_HEAL: String = "heal"
 const KIND_POWERUP: String = "powerup"
-const SHAPES: Dictionary = {"xp": "diamond", "currency": "square", "heal": "hex", "powerup": "star"}
+const BOB_PX: float = 2.0
+const BOB_SPEED: float = 4.0
 
 var kind: String = KIND_XP
 var value: float = 0.0
@@ -36,15 +37,15 @@ func _ready() -> void:
 	_collision.shape = shape
 	collision_layer = Db.layer_bit("pickup")
 	collision_mask = Db.layer_bit("player")
-	Neon.build_body(_visual, str(SHAPES.get(kind, "diamond")), size, _color_name())
+	Sprites.attach(_visual, _sprite_id(), "default", float(get_instance_id() % 11) / 11.0)
 	body_entered.connect(_on_body_entered)
 	Signals.magnet_requested.connect(_on_magnet)
 
 
-func _color_name() -> String:
+func _sprite_id() -> String:
 	if kind == KIND_POWERUP:
-		return Db.s(Db.entry("locations", "powerups", Db.s(extra, "id")), "color", "white")
-	return Db.s(Db.cfg_d("pickups.colors"), kind, "white")
+		return "fx/" + Db.s(extra, "id", "power_heal")
+	return "fx/" + kind
 
 
 func is_magnetic() -> bool:
@@ -57,7 +58,7 @@ func _on_magnet() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	_visual.rotation += Db.cfg_f("pickups.spin_speed") * delta
+	_visual.position.y = sin(float(TimeService.run_msec()) * 0.001 * BOB_SPEED + float(get_instance_id() % 7)) * BOB_PX
 	if _collected or target == null or not is_instance_valid(target) or not is_magnetic():
 		return
 	var to_target: Vector2 = target.global_position - global_position

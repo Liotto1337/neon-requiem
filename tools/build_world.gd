@@ -2,15 +2,14 @@ extends Node
 ## World builder (run once, or after changing data/tiles.json / locations.json layouts):
 ##   godot --headless --path . res://tools/BuildWorld.tscn
 ## Runs as a scene so the location scripts compile against the autoloads.
-## 1. Paints the placeholder pixel-art atlas (32x32 tiles, data/tiles.json) and saves it as
-##    scenes/Locations/tiles/neon_atlas.res — no PNG involved.
-## 2. Builds the TileSet (physics layer = wall, custom data "collision" and "tile_id").
-## 3. Assembles every location scene from its "layout" block: Floor / Walls / Decor
-##    TileMapLayers + Markers. The saved .tscn files stay editable in the editor.
-## When real tile art arrives, point the atlas source at the PNG with the same grid.
+## 1. Builds the TileSet from the code-drawn atlas assets/tiles/neon_atlas.png (64x64 tiles,
+##    made by `python3 tools/art/build_art.py tiles` from data/tiles.json): physics layer =
+##    wall, custom data "collision" and "tile_id", floor variants, animated hazards.
+## 2. Assembles every location scene from its "layout" block: Floor / Walls / Decor
+##    TileMapLayers + Markers. Wall cells with open floor below get the "face" tile (3/4 view).
+##    The saved .tscn files stay editable in the editor.
 
 const Db = preload("res://core/Db.gd")
-const TileArt = preload("res://tools/TileArt.gd")
 const LAYER_FLOOR_Z: int = -10
 const LAYER_DECOR_Z: int = -8
 const LAYER_WALL_Z: int = -6
@@ -29,12 +28,11 @@ func _ready() -> void:
 func _build() -> bool:
 	for tile: Variant in Db.list("tiles", "tiles"):
 		_tiles[Db.s(tile, "id")] = tile
-	var atlas: ImageTexture = ImageTexture.create_from_image(TileArt.paint_atlas(Db.table("tiles")))
-	var atlas_path: String = Db.s(Db.table("locations"), "atlas")
-	if ResourceSaver.save(atlas, atlas_path) != OK:
-		push_error("build_world: cannot save %s" % atlas_path)
+	var atlas: Texture2D = load(Db.s(Db.table("locations"), "atlas"))
+	if atlas == null:
+		push_error("build_world: run tools/art/build_art.py tiles and import the project first")
 		return false
-	var tileset: TileSet = _make_tileset(load(atlas_path))
+	var tileset: TileSet = _make_tileset(atlas)
 	var tileset_path: String = Db.s(Db.table("locations"), "tileset")
 	if ResourceSaver.save(tileset, tileset_path) != OK:
 		push_error("build_world: cannot save %s" % tileset_path)
@@ -70,7 +68,17 @@ func _make_tileset(texture: Texture2D) -> TileSet:
 
 
 func _add_tile(source: TileSetAtlasSource, tile: Dictionary, half: float) -> void:
-	var coords: Vector2i = _atlas(tile)
+	for variant: int in maxi(1, Db.i(tile, "variants", 1)):
+		_add_cell(source, tile, _atlas(tile) + Vector2i(variant, 0), half)
+	var frames: int = Db.i(tile, "frames", 1)
+	if frames > 1:
+		source.set_tile_animation_columns(_atlas(tile), frames)
+		source.set_tile_animation_frames_count(_atlas(tile), frames)
+		for frame: int in frames:
+			source.set_tile_animation_frame_duration(_atlas(tile), frame, Db.f(Db.table("tiles"), "frame_sec", 0.2))
+
+
+func _add_cell(source: TileSetAtlasSource, tile: Dictionary, coords: Vector2i, half: float) -> void:
 	source.create_tile(coords)
 	var data: TileData = source.get_tile_data(coords, 0)
 	data.set_custom_data("collision", Db.s(tile, "collision"))
@@ -126,7 +134,19 @@ func _layer(root: Node2D, layer_name: String, tileset: TileSet, z: int) -> TileM
 
 func _put(layer: TileMapLayer, cell: Vector2i, tile_id: String) -> void:
 	if _tiles.has(tile_id):
-		layer.set_cell(cell, Db.i(Db.table("tiles"), "source_id"), _atlas(_tiles[tile_id]))
+		var tile: Dictionary = _tiles[tile_id]
+		var variant: int = _variant(tile)
+		layer.set_cell(cell, Db.i(Db.table("tiles"), "source_id"), _atlas(tile) + Vector2i(variant, 0))
+
+
+func _variant(tile: Dictionary) -> int:
+	var weights: Array = Db.a(tile, "variant_weights")
+	if weights.is_empty():
+		return _rng.randi_range(0, maxi(1, Db.i(tile, "variants", 1)) - 1)
+	var table: Dictionary = {}
+	for index: int in weights.size():
+		table[str(index)] = weights[index]
+	return int(_weighted(table))
 
 
 func _weighted(weights: Dictionary) -> String:
@@ -153,8 +173,8 @@ func _paint_floor(layer: TileMapLayer, layout: Dictionary, size: Vector2i) -> vo
 	if Db.s(layout, "style") == "rail":
 		for row: Variant in Db.a(layout, "tracks"):
 			for x: int in size.x:
-				_put(layer, Vector2i(x, int(Db.num(row))), Db.s(layout, "track_tile"))
-				_put(layer, Vector2i(x, int(Db.num(row)) + 1), Db.s(layout, "track_tile"))
+				for dy: int in Db.i(layout, "track_width", 2):
+					_put(layer, Vector2i(x, int(Db.num(row)) + dy), Db.s(layout, "track_tile"))
 
 
 func _center(size: Vector2i) -> Vector2i:
@@ -233,8 +253,8 @@ func _plan_blobs(layout: Dictionary, size: Vector2i, solid: Dictionary) -> void:
 func _plan_chunks(layout: Dictionary, size: Vector2i, solid: Dictionary) -> void:
 	var tracks: Array = []
 	for row: Variant in Db.a(layout, "tracks"):
-		tracks.append(int(Db.num(row)))
-		tracks.append(int(Db.num(row)) + 1)
+		for dy: int in Db.i(layout, "track_width", 2):
+			tracks.append(int(Db.num(row)) + dy)
 	for _index: int in Db.i(layout, "features"):
 		var origin: Vector2i = Vector2i(_rng.randi_range(3, size.x - 8), _rng.randi_range(3, size.y - 8))
 		var extent: Vector2i = Vector2i(_length(layout), _rng.randi_range(2, 3))
@@ -260,16 +280,22 @@ func _plan_arena(layout: Dictionary, size: Vector2i, solid: Dictionary) -> void:
 			solid[cell + offset] = true
 
 
+## Wall tiles by cell (interior + border); a wall with open floor below shows its face tile.
 func _paint_walls(layer: TileMapLayer, layout: Dictionary, size: Vector2i, solid: Dictionary) -> void:
+	var walls: Dictionary = {}
 	for cell: Variant in solid.keys():
-		var tile_id: Variant = solid[cell]
-		_put(layer, cell, tile_id if tile_id is String else Db.s(layout, "wall"))
+		walls[cell] = solid[cell] if solid[cell] is String else Db.s(layout, "wall")
 	for x: int in size.x:
-		_put(layer, Vector2i(x, 0), Db.s(layout, "border"))
-		_put(layer, Vector2i(x, size.y - 1), Db.s(layout, "border"))
+		walls[Vector2i(x, 0)] = Db.s(layout, "border")
+		walls[Vector2i(x, size.y - 1)] = Db.s(layout, "border")
 	for y: int in size.y:
-		_put(layer, Vector2i(0, y), Db.s(layout, "border"))
-		_put(layer, Vector2i(size.x - 1, y), Db.s(layout, "border"))
+		walls[Vector2i(0, y)] = Db.s(layout, "border")
+		walls[Vector2i(size.x - 1, y)] = Db.s(layout, "border")
+	for cell: Variant in walls.keys():
+		var tile_id: String = str(walls[cell])
+		var below: Vector2i = (cell as Vector2i) + Vector2i(0, 1)
+		var face: String = Db.s(Db.d(_tiles, tile_id), "face")
+		_put(layer, cell, face if face != "" and not walls.has(below) and below.y < size.y else tile_id)
 
 
 func _paint_hazards(layer: TileMapLayer, layout: Dictionary, size: Vector2i, solid: Dictionary) -> Dictionary:
