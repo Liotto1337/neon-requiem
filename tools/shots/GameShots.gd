@@ -1,6 +1,7 @@
 extends Node
-## Visual QA tour: starts a run, spawns every enemy (some elite), casts, calls a boss and saves
-## screenshots to $SHOTS_OUT. Hero via $SHOT_HERO (default vector).
+## Visual QA tour: starts a run, reloads on the move, spawns every enemy (some elite), casts,
+## calls a boss and saves screenshots to $SHOTS_OUT. Hero via $SHOT_HERO (default vector);
+## SHOT_QUICK=1 stops after the reload shots.
 ##   xvfb-run -a -s "-screen 0 1920x1080x24" godot --path . --rendering-driver opengl3 res://tools/shots/GameShots.tscn
 
 const Db = preload("res://core/Db.gd")
@@ -46,6 +47,9 @@ func _run() -> void:
 	await _frames(20)
 	await _shot("02_start")
 	await _reload_run()
+	if OS.get_environment("SHOT_QUICK") != "":
+		get_tree().quit()
+		return
 	_spawn_crowd()
 	await _combat(90)
 	await _shot("03_combat")
@@ -63,10 +67,8 @@ func _reload_run() -> void:
 	Input.action_release("attack_lmb")
 	Input.action_press("move_wasd_left")
 	await _frames(6)
-	Input.action_press("reload_r")
-	await _frames(2)
-	Input.action_release("reload_r")
-	await _frames(3)
+	_node("World/Player/Attack").call("_start_reload")
+	await _frames(1)
 	await _shot("02b_reload_run")
 	Input.action_release("move_wasd_left")
 	await _frames(3)
