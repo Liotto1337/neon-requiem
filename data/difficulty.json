@@ -1,5 +1,17 @@
 {
 	"tier_interval_sec": 60,
+	"names": [
+		{"from_tier": 0, "name": "ТИШИНА", "color": "#24c8b0"},
+		{"from_tier": 2, "name": "ШУМ", "color": "#3cc858"},
+		{"from_tier": 4, "name": "ТРЕВОГА", "color": "#9ccc2c"},
+		{"from_tier": 6, "name": "ОБЛАВА", "color": "#e8c420"},
+		{"from_tier": 8, "name": "ПЕРЕГРЕВ", "color": "#ec8c1c"},
+		{"from_tier": 10, "name": "СБОЙ", "color": "#e85820"},
+		{"from_tier": 12, "name": "КАСКАД", "color": "#d82828"},
+		{"from_tier": 14, "name": "Я ВИЖУ ТЕБЯ", "color": "#9c1830", "text": "#f0f0ff"},
+		{"from_tier": 16, "name": "Я ИДУ ЗА ТОБОЙ", "color": "#5c0c20", "text": "#f0f0ff"},
+		{"from_tier": 18, "name": "РЕКВИЕМ", "color": "#100814", "text": "#ff2e88"}
+	],
 	"base_tier_cap": 20,
 	"hp_per_tier": 0.16,
 	"damage_per_tier": 0.08,

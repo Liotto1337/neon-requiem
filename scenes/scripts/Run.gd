@@ -4,6 +4,8 @@ extends Node2D
 ## location, victory -> loop) and returns to the hub when the run ends or is suspended.
 
 const Db = preload("res://core/Db.gd")
+const Sprites = preload("res://core/Sprites.gd")
+const Neon = preload("res://core/Neon.gd")
 const MODAL_PAUSE: String = "pause"
 const MODAL_INVENTORY: String = "inventory"
 const KIND_MINIBOSS: String = "miniboss"
@@ -37,6 +39,7 @@ func _ready() -> void:
 	}, _player)
 	_player.call("setup", GameState.hero_id)
 	_camera.set("target", _player)
+	Input.set_custom_mouse_cursor(Sprites.icon("ui", "cursor"), Input.CURSOR_ARROW, Vector2.ONE * Db.cfg_f("ui.cursor_hotspot"))
 	_load_location(GameState.current_location_id())
 	GameState.begin_session()
 	_spawn_start_drones()
@@ -53,14 +56,7 @@ func _connect_signals() -> void:
 
 
 func _configure_glow() -> void:
-	var env: Environment = _environment.environment
-	env.background_mode = Environment.BG_CANVAS
-	env.glow_enabled = true
-	env.glow_hdr_threshold = Db.cfg_f("glow.threshold")
-	env.glow_intensity = Db.cfg_f("glow.intensity")
-	env.glow_strength = Db.cfg_f("glow.strength")
-	env.glow_bloom = Db.cfg_f("glow.bloom")
-	env.glow_blend_mode = Db.cfg_i("glow.blend_mode") as Environment.GlowBlendMode
+	Neon.configure_glow(_environment.environment)
 
 
 func _load_location(location_id: String) -> void:
@@ -226,4 +222,5 @@ func _go_to_hub() -> void:
 	GameState.end_session()
 	get_tree().paused = false
 	TimeService.set_paused(false)
+	Input.set_custom_mouse_cursor(null)
 	get_tree().change_scene_to_file(Db.cfg_s("scenes.hub"))

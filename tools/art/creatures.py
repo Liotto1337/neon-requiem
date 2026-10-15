@@ -646,6 +646,104 @@ def train(c: Canvas, f: int, n: int) -> None:
     c.outline(OUTLINE, "selout")
 
 
+# ---------------------------------------------------------------- hub props
+
+def portal(c: Canvas, f: int, n: int) -> None:
+    """Hub portal to the run: neon arch with a swirling vortex."""
+    w, h = c.w, c.h
+    cx, cy = w / 2, h * 0.47
+    c.paint(c.rect(cx - 52, h - 22, 104, 16, 4), GUNMETAL, style="bevel")
+    c.flat(c.rect(cx - 48, h - 22, 96, 2), NEON["cyan"])
+    c.paint(c.ellipse(cx, cy, 50, 62), STEEL, style="dome", rim=NEON["magenta"], rim_dir=(0.6, 0.8))
+    c.paint(c.ellipse(cx, cy, 40, 52), VOID[::-1], style="dome", sep=True)
+    ph = f / n * TAU
+    for k in range(3):
+        a0 = math.degrees(ph) + k * 120
+        c.flat(c.arc(cx, cy, 30 - k * 8, 3, a0, a0 + 150).clip(c.ellipse(cx, cy, 40, 52)), NEON["magenta"] if k % 2 == 0 else NEON["cyan"])
+    c.paint(c.circle(cx, cy, 7 + (f % 2)), GLOW["white"], style="dome")
+    for side in (-1, 1):
+        c.paint(c.rect(cx + side * 50 - 6, cy - 10, 12, 70, 3), GUNMETAL, style="cylinder", sep=True)
+        c.flat(c.rect(cx + side * 50 - 1, cy - 4, 2, 58), NEON["cyan"] if (f + (side > 0)) % 2 else mix(NEON["cyan"], "#0b0714", 0.4))
+    c.outline(OUTLINE, "selout")
+
+
+def tree_terminal(c: Canvas, f: int, n: int) -> None:
+    """Skill tree projector: a pedestal casting a holographic branching tree."""
+    w, h = c.w, c.h
+    cx = w / 2
+    c.paint(c.ellipse(cx, h - 16, 30, 8), GUNMETAL, style="dome")
+    c.paint(c.rect(cx - 18, h - 34, 36, 20, 4), STEEL, style="bevel", sep=True)
+    c.flat(c.rect(cx - 14, h - 28, 28, 2), NEON["lime"])
+    c.paint(c.ellipse(cx, h - 36, 14, 4), GLOW["lime"], style="dome")
+    flicker = [1.0, 0.85, 1.0, 0.92][f % 4]
+    col = mix(NEON["lime"], "#0b0714", 1.0 - flicker)
+    trunk = (cx, h - 40)
+    branches = [((cx, h - 40), (cx, h - 70)), ((cx, h - 70), (cx - 22, h - 92)), ((cx, h - 70), (cx + 22, h - 92)),
+                ((cx, h - 70), (cx, h - 100)), ((cx - 22, h - 92), (cx - 32, h - 110)), ((cx + 22, h - 92), (cx + 32, h - 110))]
+    for a, b in branches:
+        c.flat(c.line(*a, *b, 2), col)
+    for x, y in ((cx, h - 100), (cx - 22, h - 92), (cx + 22, h - 92), (cx - 32, h - 110), (cx + 32, h - 110), (cx, h - 70)):
+        c.paint(c.circle(x, y, 4.5), GLOW["lime"] if (int(x) + f) % 3 else GLOW["cyan"], style="dome")
+    c.outline(OUTLINE)
+
+
+def workshop(c: Canvas, f: int, n: int) -> None:
+    """Workshop bench with a robotic arm and sparks (signature item upgrades)."""
+    w, h = c.w, c.h
+    c.paint(c.rect(8, h - 50, w - 16, 18, 3), RUST, style="bevel")
+    c.paint(c.rect(8, h - 54, w - 16, 6, 2), STEEL, style="bevel", sep=True)
+    for x in (14, w - 22):
+        c.paint(c.rect(x, h - 34, 8, 26, 2), GUNMETAL, style="cylinder", sep=True)
+    c.paint(c.rect(w / 2 - 12, h - 66, 24, 12, 3), CHROME[:5], style="bevel")  # item on the bench
+    c.paint(c.circle(w / 2, h - 60, 4), GLOW["amber"], style="dome")
+    swing = [0, 6, 10, 4][f % 4]
+    base = (w - 26, h - 54)
+    elbow = (w - 40 - swing, h - 86)
+    tip = (w / 2 + 10 - swing * 0.5, h - 74)
+    c.paint(c.capsule(*base, *elbow, 4.5), TINT["amber"], style="cylinder", sep=True)
+    c.paint(c.capsule(*elbow, *tip, 3.5), TINT["amber"], style="cylinder", sep=True)
+    c.paint(c.circle(*elbow, 4), STEEL, style="dome")
+    if f % 2 == 0:
+        for k in range(5):
+            a = -math.pi / 2 + (k - 2) * 0.5
+            c.flat(c.line(tip[0], tip[1], tip[0] + math.cos(a) * 9, tip[1] + math.sin(a) * 9, 1), NEON["amber"] if k % 2 else NEON["white"])
+    c.paint(c.rect(14, h - 92, 26, 30, 3), GUNMETAL, style="bevel")  # tool board
+    for k in range(3):
+        c.flat(c.rect(18, h - 86 + k * 9, 18, 2), NEON["amber"] if (k + f) % 3 else mix(NEON["amber"], "#0b0714", 0.5))
+    c.outline(OUTLINE, "selout")
+
+
+def hero_pod(c: Canvas, f: int, n: int) -> None:
+    """Hero capsule: glass pod with a silhouette inside (switch or unlock heroes)."""
+    w, h = c.w, c.h
+    cx = w / 2
+    c.paint(c.ellipse(cx, h - 14, 34, 9), GUNMETAL, style="dome")
+    c.paint(c.rect(cx - 30, h - 120, 60, 106, 26), STEEL, style="bevel", rim=NEON["cyan"], rim_dir=(0.6, 0.8))
+    glass = c.rect(cx - 22, h - 110, 44, 88, 20)
+    c.paint(glass, ["#041018", "#06202e", "#0a3444", "#0e4a5e", "#2e7a90"], style="dome", sep=True)
+    sil = c.circle(cx, h - 88, 7) | c.rect(cx - 9, h - 80, 18, 34, 6) | c.rect(cx - 8, h - 48, 6, 22, 2) | c.rect(cx + 2, h - 48, 6, 22, 2)
+    c.flat(sil.clip(glass), "#041018")
+    scan = h - 108 + (f * 22) % 86
+    c.flat(c.rect(cx - 21, scan, 42, 2).clip(glass), NEON["cyan"])
+    c.flat(c.rect(cx - 18, h - 18, 36, 3), NEON["cyan"] if f % 2 else mix(NEON["cyan"], "#0b0714", 0.4))
+    c.outline(OUTLINE, "selout")
+
+
+def stats_board(c: Canvas, f: int, n: int) -> None:
+    """Records board: a wall screen with bars and a trophy glyph."""
+    w, h = c.w, c.h
+    c.paint(c.rect(4, 6, w - 8, h - 26, 4), GUNMETAL, style="bevel", rim=NEON["magenta"], rim_dir=(0.6, 0.8))
+    c.paint(c.rect(10, 12, w - 20, h - 38, 2), ["#03141c", "#06222e", "#0a3444"], style="flat", sep=True)
+    for k in range(5):
+        bh = [20, 32, 26, 40, 34][(k + f) % 5]
+        c.flat(c.rect(18 + k * 14, h - 30 - bh, 9, bh), NEON["magenta"] if k == 3 else mix(NEON["cyan"], "#06222e", 0.25))
+    c.paint(c.poly([(w - 40, 20), (w - 18, 20), (w - 22, 34), (w - 36, 34)]), BRASS[1:] + [NEON["amber"]], style="bevel")
+    c.paint(c.rect(w - 32, 34, 6, 8), BRASS, style="cylinder")
+    c.paint(c.rect(w - 38, 42, 18, 4, 1), BRASS, style="bevel")
+    c.paint(c.rect(w / 2 - 6, h - 20, 12, 14), GUNMETAL, style="cylinder")
+    c.outline(OUTLINE, "selout")
+
+
 # id -> (canvas w, canvas h, frames, painter)
 CREATURES = {
     "grunt": (64, 64, 4, grunt), "glitch_rat": (40, 40, 4, glitch_rat), "turret_bot": (64, 64, 4, turret_bot),
@@ -661,7 +759,10 @@ CREATURES = {
     "furnace_drone": (176, 176, 4, furnace_drone), "rail_baron": (176, 176, 4, rail_baron),
     "spire_herald": (176, 176, 4, spire_herald), "requiem": (208, 208, 4, requiem),
     "drone": (40, 40, 4, drone), "train": (420, 64, 2, train),
+    "portal": (144, 176, 4, portal), "tree_terminal": (96, 136, 4, tree_terminal), "workshop": (128, 112, 4, workshop),
+    "hero_pod": (88, 140, 4, hero_pod), "stats_board": (128, 96, 4, stats_board),
 }
+PROPS = {"train", "portal", "tree_terminal", "workshop", "hero_pod", "stats_board"}
 
 
 def frames(creature_id: str) -> list:

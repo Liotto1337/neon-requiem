@@ -51,7 +51,28 @@ func _run() -> void:
 	_node("Spawner").call("spawn_boss", Db.s(Db.entry("locations", "locations", GameState.current_location_id()), "boss"))
 	await _combat(120)
 	await _shot("04_boss")
+	await _hud_and_reload()
 	get_tree().quit()
+
+
+## Hit through the QA invulnerability to catch the ghost chunk, then a reload on the move.
+func _hud_and_reload() -> void:
+	GameState.heal_player(100.0, "qa")
+	await _frames(2)
+	GameState.set("_invuln_until_msec", 0)
+	GameState.damage_player({"damage": 30.0, "source": "qa"})
+	GameState.add_buff({"id": "shot_invuln2", "name": "QA", "duration_sec": 9999.0, "invuln_sec": 9999.0})
+	await _frames(2)
+	await _shot("05_hud_hit")
+	await get_tree().create_timer(0.55).timeout
+	await _shot("06_hud_fall")
+	Input.action_press("move_wasd_left")
+	Input.action_press("reload_r")
+	await _frames(2)
+	Input.action_release("reload_r")
+	await get_tree().create_timer(0.35).timeout
+	await _shot("07_reload")
+	Input.action_release("move_wasd_left")
 
 
 func _finish_draft() -> void:

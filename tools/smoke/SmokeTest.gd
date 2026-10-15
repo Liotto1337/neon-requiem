@@ -7,6 +7,7 @@ extends Node
 ## Writes user://smoke_report.txt and exits with code 0 when every check passes.
 
 const Db = preload("res://core/Db.gd")
+const Sprites = preload("res://core/Sprites.gd")
 const REPORT_PATH: String = "user://smoke_report.txt"
 const HUGE_DAMAGE: float = 1000000.0
 const PURE_SCRIPTS: Array[String] = ["res://autoload/SpawnDirector.gd", "res://autoload/DamageCalc.gd", "res://autoload/WaveDirector.gd"]
@@ -58,6 +59,7 @@ func _run() -> void:
 	await _test_start_run()
 	await _test_draft()
 	await _test_controls()
+	await _test_visuals()
 	await _test_levelup_and_ultimate()
 	await _test_elites()
 	await _test_difficulty()
@@ -81,9 +83,17 @@ func _finish() -> void:
 # ---------------------------------------------------------------- 1. hub
 
 func _test_hub_boot() -> void:
+	get_tree().change_scene_to_file(Db.cfg_s("scenes.menu"))
+	await _frames(5)
+	_check("main menu boots with 3 hero cards", _scene() != null and _scene().name == "MainMenu" and _node("UI/Menu/Rows/Cards").get_child_count() == 3)
 	get_tree().change_scene_to_file(Db.cfg_s("scenes.hub"))
 	await _frames(5)
 	_check("hub boots", _scene() != null and _scene().name == "Hub")
+	_check("hub has the walking hero and 5 terminals", _node("World/Avatar") != null and _scene().get("_terminals").size() == 5)
+	_scene().call("use_terminal", "tree")
+	await _frames(2)
+	_check("skill tree terminal opens the graph", str(_scene().call("open_overlay")) == "tree")
+	_scene().call("_close_overlays")
 	_check("fresh meta currency", MetaState.currency == Db.cfg_i("meta.start_currency"), str(MetaState.currency))
 	_check("one hero unlocked at start", MetaState.unlocked_heroes.size() == 1)
 
@@ -150,6 +160,38 @@ func _test_controls() -> void:
 	_check("item key 1 uses active item", ItemSystem.cooldown_left(0) > 0.0 and Db.f(GameState.resources, "hp") > 40.0)
 	for slot: int in 6:
 		_check("item action %d mapped" % (slot + 1), InputMap.has_action(InputMapHelper.item_action(slot)))
+
+
+# ---------------------------------------------------------------- 4b. sprites, reload bar, camera, HUD
+
+func _test_visuals() -> void:
+	var player: Node2D = _node("World/Player")
+	var sprite: AnimatedSprite2D = player.get_node("Animator").get("sprite")
+	var clips: PackedStringArray = sprite.sprite_frames.get_animation_names() if sprite != null else PackedStringArray()
+	var wanted: Array[String] = ["idle", "run", "reload", "reload_run", "attack", "hurt", "levelup", "cast"]
+	_check("hero sprite has 8 animations", wanted.all(func(clip: String) -> bool: return clips.has(clip)), ", ".join(clips))
+	await _seconds(1.0)
+	player.call("animate", "attack")
+	await _frames(1)
+	_check("attack plays the attack clip", sprite.animation == &"attack", str(sprite.animation))
+	await _seconds(0.4)
+	player.call("animate", "reload", 1.0, 1.0)
+	await _frames(2)
+	_check("reload bar shows during R", bool(player.get_node("ReloadBar").visible))
+	_check("reload clip while standing", sprite.animation == &"reload")
+	_check("enemy sprites come from the sheet manifest", Sprites.has("enemies/grunt") and Sprites.has("enemies/requiem"))
+	var camera: Node = _node("Camera")
+	var motion: InputEventMouseMotion = InputEventMouseMotion.new()
+	motion.relative = Vector2(40.0, 0.0)
+	motion.position = Vector2(1700.0, 540.0)
+	Input.parse_input_event(motion)
+	await _frames(2)
+	_check("camera leads while the aim moves", bool(camera.call("aiming")))
+	get_tree().paused = true
+	await _frames(1)
+	_check("camera recentres while a modal pauses the run", not bool(camera.call("aiming")))
+	get_tree().paused = false
+	_check("HUD difficulty strip starts at ТИШИНА", str(_node("UI/HUD/RunInfo/Difficulty").call("current_name")) == "ТИШИНА")
 
 
 # ---------------------------------------------------------------- 5. level-up / ultimate

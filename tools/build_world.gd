@@ -7,6 +7,8 @@ extends Node
 ##    wall, custom data "collision" and "tile_id", floor variants, animated hazards.
 ## 2. Assembles every location scene from its "layout" block: Floor / Walls / Decor
 ##    TileMapLayers + Markers. Wall cells with open floor below get the "face" tile (3/4 view).
+## 3. Assembles the hub room (data/hub.json): floor with neon guide lines, walls and pillars,
+##    decor and markers for the spawn and every terminal.
 ##    The saved .tscn files stay editable in the editor.
 
 const Db = preload("res://core/Db.gd")
@@ -41,7 +43,7 @@ func _build() -> bool:
 	for location: Variant in Db.list("locations", "locations"):
 		if not _build_location(location, saved):
 			return false
-	return true
+	return _build_hub(saved)
 
 
 # ---------------------------------------------------------------- tileset
@@ -354,3 +356,62 @@ func _marker(root: Node2D, parent: Node, marker_name: String, position: Vector2)
 
 func _cell_center(cell: Vector2i, tile: int) -> Vector2:
 	return Vector2(cell * tile) + Vector2.ONE * float(tile) * 0.5
+
+
+# ---------------------------------------------------------------- hub room
+
+func _build_hub(tileset: TileSet) -> bool:
+	var hub: Dictionary = Db.table("hub")
+	var room: Dictionary = Db.d(hub, "room")
+	_rng.seed = Db.i(room, "seed")
+	var size: Vector2i = Vector2i(int(Db.num(Db.a(room, "size")[0])), int(Db.num(Db.a(room, "size")[1])))
+	var root: Node2D = Node2D.new()
+	root.name = Db.s(hub, "node_name")
+	var floor_layer: TileMapLayer = _layer(root, "Floor", tileset, LAYER_FLOOR_Z)
+	var wall_layer: TileMapLayer = _layer(root, "Walls", tileset, LAYER_WALL_Z)
+	var decor_layer: TileMapLayer = _layer(root, "Decor", tileset, LAYER_DECOR_Z)
+	for x: int in size.x:
+		for y: int in size.y:
+			_put(floor_layer, Vector2i(x, y), Db.s(room, "floor"))
+	for line: Variant in Db.a(room, "lines"):
+		_paint_line(floor_layer, line)
+	var solid: Dictionary = {}
+	for cell: Variant in Db.a(room, "pillars"):
+		solid[_cell(cell)] = Db.s(room, "wall")
+	_paint_walls(wall_layer, {"wall": Db.s(room, "wall"), "border": Db.s(room, "wall")}, size, solid)
+	for group: Variant in Db.a(room, "decor"):
+		for cell: Variant in Db.a(group, "cells"):
+			_put(decor_layer, _cell(cell), Db.s(group, "tile"))
+	_add_hub_markers(root, hub, tileset.tile_size.x)
+	var scene: PackedScene = PackedScene.new()
+	if scene.pack(root) != OK or ResourceSaver.save(scene, Db.s(hub, "scene")) != OK:
+		push_error("build_world: cannot save %s" % Db.s(hub, "scene"))
+		return false
+	root.free()
+	return true
+
+
+func _cell(value: Variant) -> Vector2i:
+	var pair: Array = value
+	return Vector2i(int(Db.num(pair[0])), int(Db.num(pair[1])))
+
+
+## Straight neon guide line of one fixed tile variant.
+func _paint_line(layer: TileMapLayer, line: Dictionary) -> void:
+	var tile: Dictionary = Db.d(_tiles, Db.s(line, "tile"))
+	var from: Vector2i = _cell(Db.a(line, "from"))
+	var to: Vector2i = _cell(Db.a(line, "to"))
+	var step: Vector2i = Vector2i(signi(to.x - from.x), signi(to.y - from.y))
+	var cell: Vector2i = from
+	while true:
+		layer.set_cell(cell, Db.i(Db.table("tiles"), "source_id"), _atlas(tile) + Vector2i(Db.i(line, "variant"), 0))
+		if cell == to:
+			break
+		cell += step
+
+
+func _add_hub_markers(root: Node2D, hub: Dictionary, tile: int) -> void:
+	var markers: Node2D = _marker(root, root, "Markers", Vector2.ZERO)
+	_marker(root, markers, "Spawn", _cell_center(_cell(Db.a(hub, "spawn")), tile))
+	for terminal: Variant in Db.a(hub, "terminals"):
+		_marker(root, markers, Db.s(terminal, "id"), _cell_center(_cell(Db.a(terminal, "cell")), tile))

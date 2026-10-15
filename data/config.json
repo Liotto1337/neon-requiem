@@ -3,7 +3,8 @@
 	"autosave_seconds": 30,
 	"scenes": {
 		"hub": "res://scenes/Hub.tscn",
-		"run": "res://scenes/Run.tscn"
+		"run": "res://scenes/Run.tscn",
+		"menu": "res://scenes/MainMenu.tscn"
 	},
 	"palette": {
 		"bg": "#1a0b2e",
@@ -73,7 +74,6 @@
 		"hit_iframes_sec": 0.4,
 		"contact_cooldown_sec": 0.5,
 		"flash_sec": 0.1,
-		"aim_line_px": 38.0,
 		"hurt_shake": 6.0,
 		"hurt_shake_sec": 0.15
 	},
@@ -104,7 +104,13 @@
 		"attempts_per_option": 8
 	},
 	"camera": {
-		"follow_speed": 10.0,
+		"follow_rate": 12.0,
+		"aim_lead": 0.32,
+		"aim_max_px": 300.0,
+		"aim_idle_sec": 0.7,
+		"aim_motion_px": 1.5,
+		"lead_rate": 5.0,
+		"recenter_rate": 3.0,
 		"shake_decay": 7.0,
 		"max_shake_px": 24.0
 	},
@@ -157,7 +163,18 @@
 		"reload_bar_width": 46.0,
 		"reload_bar_tick": 5.0,
 		"reload_bar_line": 2.0,
-		"reload_bar_offset": 64.0
+		"reload_bar_offset": 64.0,
+		"bar_gain_delay": 0.15,
+		"bar_ghost_delay": 0.4,
+		"bar_ease_speed": 14.0,
+		"bar_fall_sec": 0.55,
+		"bar_fall_px": 28.0,
+		"bar_ghost_alpha": 0.55,
+		"difficulty_px_per_tier": 66.0,
+		"difficulty_marker": 0.24,
+		"cursor_hotspot": 18.0,
+		"hub_overlay_margin": 70.0,
+		"hub_camera_rate": 6.0
 	},
 	"audio": {
 		"buses": ["Master"]
@@ -183,7 +200,7 @@
 		"item_6": ["key:6"],
 		"item_7": ["key:7"],
 		"pause_esc": ["key:Escape"],
-		"inventory_tab": ["key:Tab"],
+		"inventory_tab": ["key:Tab"], "interact": ["key:E"],
 		"debug_skip": ["key:F10"],
 		"debug_xp": ["key:F9"]
 	},

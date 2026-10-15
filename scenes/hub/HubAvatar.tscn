@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scenes/hub/HubAvatar.gd" id="1_avatar"]
+[ext_resource type="Script" path="res://scenes/entities/components/HeroAnimator.gd" id="2_animator"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 12.0
+
+[node name="HubAvatar" type="CharacterBody2D"]
+collision_layer = 1
+collision_mask = 32
+motion_mode = 1
+script = ExtResource("1_avatar")
+
+[node name="Collision" type="CollisionShape2D" parent="."]
+position = Vector2(0, 14)
+shape = SubResource("CircleShape2D_body")
+
+[node name="Visual" type="Node2D" parent="."]
+
+[node name="Animator" type="Node" parent="."]
+script = ExtResource("2_animator")

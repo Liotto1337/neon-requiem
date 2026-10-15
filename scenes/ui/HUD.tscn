@@ -1,21 +1,11 @@
 [gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scenes/ui/HUD.gd" id="1_script"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hp"]
-bg_color = Color(1, 0.180392, 0.533333, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mana"]
-bg_color = Color(0, 0.941176, 1, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xp"]
-bg_color = Color(0.713726, 1, 0, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_boss"]
-bg_color = Color(0.941176, 0.941176, 1, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_shield"]
-bg_color = Color(0.227451, 0.490196, 1, 1)
+[ext_resource type="Script" path="res://scenes/ui/components/JuicyBar.gd" id="2_bar"]
+[ext_resource type="Script" path="res://scenes/ui/components/DifficultyBar.gd" id="3_diff"]
+[ext_resource type="Texture2D" path="res://assets/icons/ui/threat.png" id="4_threat"]
+[ext_resource type="Texture2D" path="res://assets/icons/ui/credits.png" id="5_credits"]
+[ext_resource type="Texture2D" path="res://assets/icons/ui/level.png" id="6_level"]
 
 [node name="HUD" type="Control"]
 layout_mode = 3
@@ -27,172 +17,245 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_script")
 
-[node name="Resources" type="PanelContainer" parent="."]
+[node name="Vitals" type="PanelContainer" parent="."]
 layout_mode = 0
-offset_left = 16.0
-offset_top = 16.0
-offset_right = 476.0
-offset_bottom = 230.0
+offset_left = 18.0
+offset_top = 18.0
+offset_right = 500.0
+offset_bottom = 214.0
 mouse_filter = 2
 
-[node name="Rows" type="VBoxContainer" parent="Resources"]
+[node name="Rows" type="VBoxContainer" parent="Vitals"]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 6
 
-[node name="HpRow" type="HBoxContainer" parent="Resources/Rows"]
+[node name="Header" type="HBoxContainer" parent="Vitals/Rows"]
 layout_mode = 2
 mouse_filter = 2
+theme_override_constants/separation = 6
 
-[node name="Name" type="Label" parent="Resources/Rows/HpRow"]
-custom_minimum_size = Vector2(80, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.180392, 0.533333, 1)
-text = "HP"
-
-[node name="Bars" type="VBoxContainer" parent="Resources/Rows/HpRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-mouse_filter = 2
-theme_override_constants/separation = 0
-alignment = 1
-
-[node name="HpBar" type="ProgressBar" parent="Resources/Rows/HpRow/Bars"]
-custom_minimum_size = Vector2(0, 18)
+[node name="LevelIcon" type="TextureRect" parent="Vitals/Rows/Header"]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 mouse_filter = 2
-theme_override_styles/fill = SubResource("StyleBoxFlat_hp")
-show_percentage = false
+texture = ExtResource("6_level")
+expand_mode = 1
+stretch_mode = 5
 
-[node name="ShieldBar" type="ProgressBar" parent="Resources/Rows/HpRow/Bars"]
-custom_minimum_size = Vector2(0, 5)
-layout_mode = 2
-mouse_filter = 2
-theme_override_styles/fill = SubResource("StyleBoxFlat_shield")
-show_percentage = false
-
-[node name="Text" type="Label" parent="Resources/Rows/HpRow"]
-custom_minimum_size = Vector2(110, 0)
-layout_mode = 2
-text = "100/100"
-horizontal_alignment = 2
-
-[node name="ManaRow" type="HBoxContainer" parent="Resources/Rows"]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="Name" type="Label" parent="Resources/Rows/ManaRow"]
-custom_minimum_size = Vector2(80, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.941176, 1, 1)
-text = "Мана"
-
-[node name="Bar" type="ProgressBar" parent="Resources/Rows/ManaRow"]
-custom_minimum_size = Vector2(0, 18)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-mouse_filter = 2
-theme_override_styles/fill = SubResource("StyleBoxFlat_mana")
-show_percentage = false
-
-[node name="Text" type="Label" parent="Resources/Rows/ManaRow"]
-custom_minimum_size = Vector2(110, 0)
-layout_mode = 2
-text = "100/100"
-horizontal_alignment = 2
-
-[node name="XpRow" type="HBoxContainer" parent="Resources/Rows"]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="Name" type="Label" parent="Resources/Rows/XpRow"]
-custom_minimum_size = Vector2(80, 0)
+[node name="Level" type="Label" parent="Vitals/Rows/Header"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.713726, 1, 0, 1)
+theme_override_font_sizes/font_size = 22
 text = "Ур. 1"
 
-[node name="Bar" type="ProgressBar" parent="Resources/Rows/XpRow"]
-custom_minimum_size = Vector2(0, 18)
+[node name="XpText" type="Label" parent="Vitals/Rows/Header"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 4
-mouse_filter = 2
-theme_override_styles/fill = SubResource("StyleBoxFlat_xp")
-show_percentage = false
-
-[node name="Text" type="Label" parent="Resources/Rows/XpRow"]
-custom_minimum_size = Vector2(110, 0)
-layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.66, 0.5, 1)
+theme_override_font_sizes/font_size = 15
 text = "0/10"
-horizontal_alignment = 2
+vertical_alignment = 1
 
-[node name="CurrencyRow" type="HBoxContainer" parent="Resources/Rows"]
+[node name="CreditsIcon" type="TextureRect" parent="Vitals/Rows/Header"]
+custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
 mouse_filter = 2
+texture = ExtResource("5_credits")
+expand_mode = 1
+stretch_mode = 5
 
-[node name="Name" type="Label" parent="Resources/Rows/CurrencyRow"]
-custom_minimum_size = Vector2(80, 0)
+[node name="Credits" type="Label" parent="Vitals/Rows/Header"]
+custom_minimum_size = Vector2(56, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.721569, 0, 1)
-text = "Кредиты"
-
-[node name="Text" type="Label" parent="Resources/Rows/CurrencyRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(1, 0.721569, 0, 1)
+theme_override_font_sizes/font_size = 22
 text = "0"
 horizontal_alignment = 2
 
-[node name="Status" type="Label" parent="Resources/Rows"]
+[node name="HpBar" type="Control" parent="Vitals/Rows"]
+custom_minimum_size = Vector2(450, 30)
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
+mouse_filter = 2
+script = ExtResource("2_bar")
+fill_color = Color(1, 0.2, 0.3, 1)
+back_color = Color(0.12, 0.03, 0.06, 1)
+tick_units = 25.0
+text_size = 18
+
+[node name="ShieldBar" type="Control" parent="Vitals/Rows"]
+visible = false
+custom_minimum_size = Vector2(450, 9)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_bar")
+fill_color = Color(0.227451, 0.490196, 1, 1)
+back_color = Color(0.03, 0.05, 0.14, 1)
+show_text = false
+
+[node name="ManaBar" type="Control" parent="Vitals/Rows"]
+custom_minimum_size = Vector2(450, 22)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_bar")
+fill_color = Color(0, 0.8, 0.95, 1)
+back_color = Color(0.02, 0.08, 0.12, 1)
+text_size = 15
+
+[node name="XpBar" type="Control" parent="Vitals/Rows"]
+custom_minimum_size = Vector2(450, 12)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_bar")
+fill_color = Color(0.6, 0.9, 0.05, 1)
+back_color = Color(0.06, 0.09, 0.02, 1)
+show_text = false
+
+[node name="Status" type="Label" parent="Vitals/Rows"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
 autowrap_mode = 3
 
-[node name="Top" type="VBoxContainer" parent="."]
+[node name="RunInfo" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -432.0
+offset_top = 18.0
+offset_right = -18.0
+offset_bottom = 300.0
+grow_horizontal = 0
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="TimerPanel" type="PanelContainer" parent="RunInfo"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Row" type="HBoxContainer" parent="RunInfo/TimerPanel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+
+[node name="ThreatIcon" type="TextureRect" parent="RunInfo/TimerPanel/Row"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("4_threat")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Threat" type="VBoxContainer" parent="RunInfo/TimerPanel/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = -4
+alignment = 1
+
+[node name="Name" type="Label" parent="RunInfo/TimerPanel/Row/Threat"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+text = "ТИШИНА"
+
+[node name="Tier" type="Label" parent="RunInfo/TimerPanel/Row/Threat"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.55, 0.72, 1)
+theme_override_font_sizes/font_size = 14
+text = "Угроза 0"
+
+[node name="Time" type="Label" parent="RunInfo/TimerPanel/Row"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 46
+theme_override_constants/outline_size = 8
+theme_override_colors/font_outline_color = Color(0.02, 0.01, 0.05, 1)
+text = "00:00"
+vertical_alignment = 1
+
+[node name="Centis" type="Label" parent="RunInfo/TimerPanel/Row"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+size_flags_vertical = 8
+theme_override_colors/font_color = Color(0.7, 0.68, 0.8, 1)
+theme_override_font_sizes/font_size = 20
+text = "00"
+
+[node name="Difficulty" type="Control" parent="RunInfo"]
+custom_minimum_size = Vector2(414, 30)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("3_diff")
+
+[node name="Objective" type="PanelContainer" parent="RunInfo"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Rows" type="VBoxContainer" parent="RunInfo/Objective"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="Header" type="Label" parent="RunInfo/Objective/Rows"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.55, 0.72, 1)
+theme_override_font_sizes/font_size = 13
+text = "ЦЕЛЬ"
+
+[node name="Location" type="Label" parent="RunInfo/Objective/Rows"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.941176, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "Локация"
+
+[node name="Goal" type="Label" parent="RunInfo/Objective/Rows"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "▢ Продержитесь"
+autowrap_mode = 3
+
+[node name="Loop" type="Label" parent="RunInfo/Objective/Rows"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.180392, 0.533333, 1)
+theme_override_font_sizes/font_size = 15
+text = "Петля"
+
+[node name="Hint" type="Label" parent="RunInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.431373, 0.352941, 0.541176, 1)
+theme_override_font_sizes/font_size = 14
+text = "TAB — инвентарь и крафт · ESC — пауза"
+horizontal_alignment = 2
+
+[node name="BossBox" type="VBoxContainer" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -360.0
-offset_top = 12.0
-offset_right = 360.0
-offset_bottom = 160.0
+offset_left = -380.0
+offset_top = 20.0
+offset_right = 380.0
+offset_bottom = 90.0
 grow_horizontal = 2
 mouse_filter = 2
 theme_override_constants/separation = 4
 
-[node name="Timer" type="Label" parent="Top"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 44
-text = "00:00"
-horizontal_alignment = 1
-
-[node name="Info" type="Label" parent="Top"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.941176, 1, 1)
-theme_override_font_sizes/font_size = 20
-text = "Локация"
-horizontal_alignment = 1
-
-[node name="BossBox" type="VBoxContainer" parent="Top"]
-visible = false
-layout_mode = 2
-mouse_filter = 2
-
-[node name="BossName" type="Label" parent="Top/BossBox"]
+[node name="BossName" type="Label" parent="BossBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.180392, 0.533333, 1)
 theme_override_font_sizes/font_size = 22
 text = "Босс"
 horizontal_alignment = 1
 
-[node name="BossBar" type="ProgressBar" parent="Top/BossBox"]
-custom_minimum_size = Vector2(0, 16)
+[node name="BossBar" type="Control" parent="BossBox"]
+custom_minimum_size = Vector2(760, 22)
 layout_mode = 2
 mouse_filter = 2
-theme_override_styles/fill = SubResource("StyleBoxFlat_boss")
-show_percentage = false
+script = ExtResource("2_bar")
+fill_color = Color(0.85, 0.2, 1, 1)
+back_color = Color(0.08, 0.02, 0.12, 1)
+text_size = 15
 
 [node name="Bottom" type="HBoxContainer" parent="."]
 layout_mode = 1
@@ -238,21 +301,6 @@ offset_bottom = -112.0
 grow_vertical = 0
 theme_override_colors/font_color = Color(1, 0.721569, 0, 1)
 text = "R"
-
-[node name="Hint" type="Label" parent="."]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -520.0
-offset_top = 16.0
-offset_right = -16.0
-offset_bottom = 44.0
-grow_horizontal = 0
-theme_override_colors/font_color = Color(0.431373, 0.352941, 0.541176, 1)
-theme_override_font_sizes/font_size = 16
-text = "TAB — инвентарь и крафт · ESC — пауза"
-horizontal_alignment = 2
 
 [node name="Toasts" type="VBoxContainer" parent="."]
 layout_mode = 1

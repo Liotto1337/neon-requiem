@@ -694,7 +694,31 @@ def m_u_pathfinder(c):
     c.flat(c.rect(31, 31, 2, 2), "#0b0714")
 
 
+# ---------------------------------------------------------------- ui
+
+def u_threat(c):
+    c.paint(c.ellipse(32, 26, 20, 19), BONE[1:] + ["#e4dfe9"], style="dome")
+    c.paint(c.rect(20, 36, 24, 14, 4), BONE[1:] + ["#e4dfe9"], style="bevel", sep=True)
+    for x in (24, 40):
+        c.paint(c.ellipse(x, 28, 6, 6.5), ["#05030a", "#0b0714"], style="flat")
+        c.paint(c.circle(x, 29, 2.6), GLOW["red"], style="dome")
+    c.paint(c.poly([(32, 32), (35, 38), (29, 38)]), ["#05030a", "#0b0714"], style="flat")
+    for k in range(4):
+        c.flat(c.rect(23 + k * 5, 44, 2, 6), "#140c22")
+
+
+def u_credits(c):
+    coin(c, 32, 32, 22)
+
+
+def u_level(c):
+    for k in range(3):
+        y = 44 - k * 13
+        c.paint(c.poly([(10, y + 10), (32, y - 6), (54, y + 10), (54, y + 18), (32, y + 2), (10, y + 18)]), GLOW["lime"] if k == 2 else TINT["lime"], style="bevel")
+
+
 ITEMS = {k[2:]: v for k, v in globals().items() if k.startswith("i_")}
+UI = {k[2:]: v for k, v in globals().items() if k.startswith("u_")}
 ABILITIES = {k[2:]: v for k, v in globals().items() if k.startswith("a_")}
 META = {k[2:]: v for k, v in globals().items() if k.startswith("m_")}
 

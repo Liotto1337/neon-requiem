@@ -1,8 +1,10 @@
 extends Button
 ## Card for an item, an ability, a level-up option or a hero. Border colour = rarity / ability
-## colour. Pure display: the owner connects `pressed` and passes data in.
+## colour; items and abilities show their code-drawn icon. Pure display: the owner connects
+## `pressed` and passes data in.
 
 const Db = preload("res://core/Db.gd")
+const Sprites = preload("res://core/Sprites.gd")
 
 var payload: Dictionary = {}
 var _style_normal: StyleBoxFlat = null
@@ -10,9 +12,10 @@ var _style_hover: StyleBoxFlat = null
 var _accent: Color = Color.WHITE
 var _selected: bool = false
 
-@onready var _title: Label = $Margin/Rows/Title
-@onready var _tag: Label = $Margin/Rows/Tag
-@onready var _desc: Label = $Margin/Rows/Desc
+@onready var _icon: TextureRect = $Margin/Columns/Icon
+@onready var _title: Label = $Margin/Columns/Rows/Title
+@onready var _tag: Label = $Margin/Columns/Rows/Tag
+@onready var _desc: Label = $Margin/Columns/Rows/Desc
 
 
 func _ready() -> void:
@@ -33,7 +36,15 @@ func show_custom(title: String, tag: String, desc: String, color_name: String) -
 	_tag.text = tag
 	_desc.text = desc
 	_accent = Db.color(color_name)
+	set_icon(null)
 	_apply_accent()
+
+
+## Icon on the left of the text (null hides it). size_px resizes the icon box.
+func set_icon(texture: Texture2D, size_px: float = 64.0) -> void:
+	_icon.texture = texture
+	_icon.visible = texture != null
+	_icon.custom_minimum_size = Vector2(size_px, size_px)
 
 
 func show_item(item_id: String, stacks: int) -> void:
@@ -42,6 +53,7 @@ func show_item(item_id: String, stacks: int) -> void:
 	var kind: String = "активный" if ItemSystem.is_active(item_id) else "пассивный"
 	var stack_text: String = "  ×%d" % stacks if stacks > 1 else ""
 	show_custom(Db.s(data, "name") + stack_text, "%s · %s" % [Db.s(rarity, "name"), kind], Db.s(data, "desc"), Db.s(rarity, "color", "white"))
+	set_icon(Sprites.icon("items", item_id))
 	payload = {"kind": "item", "id": item_id}
 
 
@@ -51,6 +63,7 @@ func show_ability(ability_id: String, level: int, upgrade: bool) -> void:
 	var tag: String = ("Улучшение → ур. %d" if upgrade else "Новая способность · ур. %d") % level
 	var desc: String = Db.s(data, "ultimate_desc") if ultimate else Db.s(data, "desc")
 	show_custom(Db.s(data, "name"), tag, desc, Db.s(data, "color", "white"))
+	set_icon(Sprites.icon("abilities", ability_id))
 	payload = {"kind": "ability", "id": ability_id}
 
 
@@ -71,6 +84,7 @@ func show_option(option: Dictionary) -> void:
 ## Compact cards (inventory) show title and tag; the description moves to the tooltip.
 func set_compact(compact: bool) -> void:
 	_desc.visible = not compact
+	_icon.custom_minimum_size = Vector2(40, 40) if compact else Vector2(64, 64)
 	tooltip_text = _desc.text if compact else ""
 
 

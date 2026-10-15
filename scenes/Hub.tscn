@@ -1,142 +1,135 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scenes/scripts/Hub.gd" id="1_hub"]
+[ext_resource type="PackedScene" path="res://scenes/hub/HubAvatar.tscn" id="2_avatar"]
+[ext_resource type="PackedScene" path="res://scenes/hub/SkillTreeOverlay.tscn" id="3_tree"]
+[ext_resource type="PackedScene" path="res://scenes/hub/WorkshopOverlay.tscn" id="4_workshop"]
+[ext_resource type="PackedScene" path="res://scenes/hub/HeroSelectOverlay.tscn" id="5_heroes"]
+[ext_resource type="PackedScene" path="res://scenes/hub/StatsOverlay.tscn" id="6_stats"]
+[ext_resource type="PackedScene" path="res://scenes/hub/PortalOverlay.tscn" id="7_portal"]
+[ext_resource type="Texture2D" path="res://assets/icons/ui/credits.png" id="8_credits"]
 
-[node name="Hub" type="Control"]
+[sub_resource type="Environment" id="Environment_glow"]
+background_mode = 3
+glow_enabled = true
+glow_intensity = 0.9
+glow_bloom = 0.05
+glow_blend_mode = 1
+glow_hdr_threshold = 0.9
+
+[sub_resource type="LabelSettings" id="LabelSettings_prompt"]
+font_size = 26
+font_color = Color(1, 0.721569, 0, 1)
+outline_size = 8
+outline_color = Color(0.02, 0.01, 0.05, 1)
+
+[node name="Hub" type="Node2D"]
+script = ExtResource("1_hub")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_glow")
+
+[node name="World" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="Avatar" parent="World" instance=ExtResource("2_avatar")]
+
+[node name="Camera" type="Camera2D" parent="."]
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="HubHud" type="Control" parent="UI"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_hub")
-
-[node name="Bg" type="ColorRect" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
 mouse_filter = 2
-color = Color(0.101961, 0.0431373, 0.180392, 1)
 
-[node name="Margin" type="MarginContainer" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/margin_left = 40
-theme_override_constants/margin_top = 32
-theme_override_constants/margin_right = 40
-theme_override_constants/margin_bottom = 32
+[node name="Top" type="HBoxContainer" parent="UI/HubHud"]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 20.0
+offset_right = 900.0
+offset_bottom = 64.0
+mouse_filter = 2
+theme_override_constants/separation = 12
 
-[node name="Rows" type="VBoxContainer" parent="Margin"]
+[node name="CreditsIcon" type="TextureRect" parent="UI/HubHud/Top"]
+custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
-theme_override_constants/separation = 14
+mouse_filter = 2
+texture = ExtResource("8_credits")
+expand_mode = 1
+stretch_mode = 5
 
-[node name="Header" type="HBoxContainer" parent="Margin/Rows"]
+[node name="Credits" type="Label" parent="UI/HubHud/Top"]
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.721569, 0, 1)
+theme_override_font_sizes/font_size = 30
+text = "0"
 
-[node name="Title" type="Label" parent="Margin/Rows/Header"]
+[node name="Hero" type="Label" parent="UI/HubHud/Top"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.941176, 1, 1)
-theme_override_colors/font_outline_color = Color(1, 0.180392, 0.533333, 1)
-theme_override_constants/outline_size = 6
-theme_override_font_sizes/font_size = 64
-text = "NEON REQUIEM"
+theme_override_font_sizes/font_size = 24
+text = "Герой"
+vertical_alignment = 1
 
-[node name="Spacer" type="Control" parent="Margin/Rows/Header"]
-layout_mode = 2
-size_flags_horizontal = 3
+[node name="Hint" type="Label" parent="UI/HubHud"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -620.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 54.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0.6, 0.55, 0.72, 1)
+theme_override_font_sizes/font_size = 17
+text = "WASD — ходить · E — терминал · ESC — главное меню"
+horizontal_alignment = 2
 
-[node name="Currency" type="Label" parent="Margin/Rows/Header"]
-layout_mode = 2
-size_flags_vertical = 4
-theme_override_colors/font_color = Color(1, 0.721569, 0, 1)
-theme_override_font_sizes/font_size = 34
-text = "Кредиты: 0"
-
-[node name="Stats" type="Label" parent="Margin/Rows"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.431373, 0.352941, 0.541176, 1)
-theme_override_font_sizes/font_size = 18
-text = "Забегов: 0"
-
-[node name="Tabs" type="TabContainer" parent="Margin/Rows"]
-layout_mode = 2
-size_flags_vertical = 3
-current_tab = 0
-
-[node name="Heroes" type="VBoxContainer" parent="Margin/Rows/Tabs"]
-layout_mode = 2
-theme_override_constants/separation = 18
-metadata/_tab_index = 0
-
-[node name="Cards" type="HBoxContainer" parent="Margin/Rows/Tabs/Heroes"]
-layout_mode = 2
-theme_override_constants/separation = 20
-alignment = 1
-
-[node name="Info" type="Label" parent="Margin/Rows/Tabs/Heroes"]
-layout_mode = 2
-text = "Выбран герой"
+[node name="Prompt" type="Label" parent="UI/HubHud"]
+visible = false
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -500.0
+offset_top = -110.0
+offset_right = 500.0
+offset_bottom = -64.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "E — Терминал"
+label_settings = SubResource("LabelSettings_prompt")
 horizontal_alignment = 1
-autowrap_mode = 3
 
-[node name="Tree" type="HBoxContainer" parent="Margin/Rows/Tabs"]
-visible = false
-layout_mode = 2
-theme_override_constants/separation = 20
-metadata/_tab_index = 1
-
-[node name="Shop" type="VBoxContainer" parent="Margin/Rows/Tabs"]
-visible = false
-layout_mode = 2
-theme_override_constants/separation = 14
-metadata/_tab_index = 2
-
-[node name="SignatureTitle" type="Label" parent="Margin/Rows/Tabs/Shop"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.180392, 0.533333, 1)
-theme_override_font_sizes/font_size = 26
-text = "СТАРТОВЫЙ ПРЕДМЕТ ГЕРОЯ"
-
-[node name="Signature" type="HBoxContainer" parent="Margin/Rows/Tabs/Shop"]
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="Text" type="Label" parent="Margin/Rows/Tabs/Shop/Signature"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Предмет"
-autowrap_mode = 3
-
-[node name="Upgrade" type="Button" parent="Margin/Rows/Tabs/Shop/Signature"]
-custom_minimum_size = Vector2(300, 60)
-layout_mode = 2
-size_flags_vertical = 4
-text = "Улучшить"
-
-[node name="Footer" type="HBoxContainer" parent="Margin/Rows"]
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="Toast" type="Label" parent="Margin/Rows/Footer"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
+[node name="Toast" type="Label" parent="UI/HubHud"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -500.0
+offset_top = 90.0
+offset_right = 500.0
+offset_bottom = 130.0
+grow_horizontal = 2
 theme_override_colors/font_color = Color(1, 0.721569, 0, 1)
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
 
-[node name="Continue" type="Button" parent="Margin/Rows/Footer"]
-custom_minimum_size = Vector2(320, 68)
-layout_mode = 2
-text = "Продолжить забег"
+[node name="SkillTreeOverlay" parent="UI" instance=ExtResource("3_tree")]
 
-[node name="Start" type="Button" parent="Margin/Rows/Footer"]
-custom_minimum_size = Vector2(360, 68)
-layout_mode = 2
-theme_override_font_sizes/font_size = 28
-text = "Начать забег"
+[node name="WorkshopOverlay" parent="UI" instance=ExtResource("4_workshop")]
+
+[node name="HeroSelectOverlay" parent="UI" instance=ExtResource("5_heroes")]
+
+[node name="StatsOverlay" parent="UI" instance=ExtResource("6_stats")]
+
+[node name="PortalOverlay" parent="UI" instance=ExtResource("7_portal")]

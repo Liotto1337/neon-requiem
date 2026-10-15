@@ -26,7 +26,6 @@ var _last_level: int = 0
 
 @onready var _visual: Node2D = $Visual
 @onready var _hurtbox: Area2D = $Hurtbox
-@onready var _aim_line: Line2D = $Aim
 @onready var _attack: Node = $Attack
 @onready var _caster: Node = $Caster
 @onready var orbit_root: Node2D = $Orbit
@@ -41,7 +40,6 @@ func setup(hero_id: String) -> void:
 	_reload_bar.set("color", Db.glow(Db.s(hero, "color", "cyan")))
 	_reload_bar.position = Vector2(0.0, -Db.cfg_f("ui.reload_bar_offset"))
 	_reload_bar.visible = false
-	_aim_line.default_color = Db.glow(Db.s(hero, "color", "cyan"))
 	_last_level = Db.i(GameState.resources, "level")
 	if not Signals.resources_changed.is_connected(_on_resources):
 		Signals.resources_changed.connect(_on_resources)
@@ -213,5 +211,3 @@ func _update_visuals() -> void:
 		body.modulate = Color(FLASH_ENERGY, FLASH_ENERGY, FLASH_ENERGY)
 	else:
 		body.modulate = Color(1.0, 1.0, 1.0, IFRAME_ALPHA if has_iframes() else 1.0)
-	var direction: Vector2 = (aim_position - global_position).normalized()
-	_aim_line.points = PackedVector2Array([direction * Db.f(hero, "size") * 0.6, direction * Db.cfg_f("player.aim_line_px")])

@@ -19,24 +19,39 @@ theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 12
 
-[node name="Rows" type="VBoxContainer" parent="Margin"]
+[node name="Columns" type="HBoxContainer" parent="Margin"]
 layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="Icon" type="TextureRect" parent="Margin/Columns"]
+visible = false
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_vertical = 0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Rows" type="VBoxContainer" parent="Margin/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
 mouse_filter = 2
 theme_override_constants/separation = 6
 
-[node name="Title" type="Label" parent="Margin/Rows"]
+[node name="Title" type="Label" parent="Margin/Columns/Rows"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "Название"
 autowrap_mode = 3
 
-[node name="Tag" type="Label" parent="Margin/Rows"]
+[node name="Tag" type="Label" parent="Margin/Columns/Rows"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.431373, 0.352941, 0.541176, 1)
 theme_override_font_sizes/font_size = 15
 text = "Редкость"
 
-[node name="Desc" type="Label" parent="Margin/Rows"]
+[node name="Desc" type="Label" parent="Margin/Columns/Rows"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_font_sizes/font_size = 16

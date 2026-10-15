@@ -1,0 +1,29 @@
+{
+	"scene": "res://scenes/hub/HubRoom.tscn",
+	"node_name": "HubRoom",
+	"room": {
+		"size": [30, 18],
+		"seed": 909,
+		"floor": "floor_hub",
+		"wall": "wall_hub",
+		"lines": [
+			{"tile": "floor_hub_line", "from": [5, 10], "to": [24, 10], "variant": 1},
+			{"tile": "floor_hub_line_v", "from": [15, 5], "to": [15, 14], "variant": 0}
+		],
+		"decor": [
+			{"tile": "decor_hub_planter", "cells": [[2, 2], [27, 2], [2, 15], [27, 15], [9, 2], [20, 2]]},
+			{"tile": "decor_hub_screen", "cells": [[12, 2], [17, 2], [5, 2], [24, 2]]},
+			{"tile": "decor_lamp", "cells": [[2, 8], [27, 8], [11, 15], [18, 15]]},
+			{"tile": "decor_cable", "cells": [[7, 15], [22, 15]]}
+		],
+		"pillars": [[7, 6], [22, 6], [7, 12], [22, 12]]
+	},
+	"spawn": [15, 13],
+	"terminals": [
+		{"id": "portal", "name": "Портал", "prompt": "Начать забег", "sprite": "props/portal", "cell": [15, 3], "action": "run", "radius": 110.0},
+		{"id": "tree", "name": "Нейродрево", "prompt": "Древо навыков", "sprite": "props/tree_terminal", "cell": [4, 9], "action": "tree", "radius": 100.0},
+		{"id": "workshop", "name": "Мастерская", "prompt": "Улучшить стартовый предмет", "sprite": "props/workshop", "cell": [25, 9], "action": "workshop", "radius": 100.0},
+		{"id": "pod", "name": "Капсула героев", "prompt": "Сменить или открыть героя", "sprite": "props/hero_pod", "cell": [6, 15], "action": "heroes", "radius": 95.0},
+		{"id": "stats", "name": "Табло рекордов", "prompt": "Рекорды", "sprite": "props/stats_board", "cell": [24, 15], "action": "stats", "radius": 95.0}
+	]
+}

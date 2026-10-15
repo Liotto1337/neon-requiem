@@ -12,6 +12,12 @@ custom_minimum_size = Vector2(78, 78)
 mouse_filter = 1
 script = ExtResource("1_script")
 
+[node name="Icon" type="TextureRect" parent="."]
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
 [node name="Cooldown" type="ProgressBar" parent="."]
 layout_mode = 2
 mouse_filter = 2

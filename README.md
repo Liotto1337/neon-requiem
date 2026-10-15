@@ -20,12 +20,13 @@ All art is code-drawn pixel art (no image model): Python generators in `tools/ar
 - `core/` holds static helpers: `Db` (JSON tables), `Fmt` (text), `Neon` (FX lines and rings), `Sprites` (sprite sheets, icons).
 - `assets/` holds the code-drawn art: `tiles/` (64×64 atlas), `sprites/` (heroes, enemies, allies, props, fx sheets), `icons/` (items, abilities, meta).
 - `scenes/`
-  - `Hub.tscn` and `Run.tscn` are the two top-level scenes (scripts in `scenes/scripts/`, plus `RunSpawner`).
+  - `MainMenu.tscn` (main scene: hero cards with animated sprites), `Hub.tscn` (walkable hub room with terminals) and `Run.tscn` are the top-level scenes (scripts in `scenes/scripts/`, plus `RunSpawner`).
+  - `hub/`: `HubRoom` (built from `data/hub.json`), `HubAvatar`, `Terminal` and the terminal windows (`SkillTreeOverlay` graph, `WorkshopOverlay`, `HeroSelectOverlay`, `StatsOverlay`, `PortalOverlay`).
   - `entities/`: `Player`, `Enemy`, `EliteEnemy` (inherits `Enemy` + `EliteModifier` component), `Boss`, `Projectile`, `Pickup`, `Drone`. Components: `PlayerAttack`, `AbilityCaster`, `ShotFactory`, `EliteModifier`, `HeroAnimator` (8 hero animations), `ReloadBar`.
   - `ui/`: `HUD`, `LevelUpModal`, `InventoryOverlay`, `PauseMenu`, `GameOverModal`, `LoopChoiceModal`, `HeroDraftModal`. Components: `AbilitySlot`, `ItemCard`, `StatRow`, `ModalBase`.
   - `fx/`: `SpriteFx.gdshader` (neon glow boost, hit flash, elite silhouette outline), `DamageNumber`, `ScreenShake`.
   - `Locations/`: five TileMapLayer scenes (`NeonSlums`, `DataCore`, `ChromeGardens`, `AshenRail`, `RequiemSpire`) with `LocationBase.gd` and per-location flavour scripts. `tiles/` holds the TileSet built from `assets/tiles/neon_atlas.png`.
-- `data/`: config, heroes, abilities, items (with recipes), enemies, elites, bosses, locations, meta_tree, difficulty, tiles, sprites.
+- `data/`: config, heroes, abilities, items (with recipes), enemies, elites, bosses, locations, meta_tree, difficulty, tiles, sprites, hub.
 - `tools/`: world builder, lint, strict compile check, smoke and soak tests; `tools/art/` (art generators, `rebuild.sh`), `tools/shots/` (screenshot tours for visual QA).
 - `TILE_SPEC.md` is the tile art spec (ids, atlas coords, collision, layers).
 - `obsidian/` is the project map for Obsidian.
@@ -38,14 +39,20 @@ All art is code-drawn pixel art (no image model): Python generators in `tools/ar
 - Physics layers: 1 player, 2 enemy, 3 player_projectile, 4 enemy_projectile, 5 pickup, 6 wall.
 - `tools/lint.py` checks these rules; `tools/check.sh` runs lint + strict compile + smoke test.
 
+## HUD and camera
+
+- Top-left: level, credits and the resource bars (`JuicyBar`: bevelled frame, inset groove, shaded fill; losses leave a dim ghost chunk that breaks off and falls, gains light up first).
+- Top-right, Risk of Rain 2 style: threat icon and difficulty name, `MM:SS` timer with hundredths, the scrolling difficulty strip (names in `data/difficulty.json`: ТИШИНА … РЕКВИЕМ, 2 threat tiers each) and the objective panel.
+- The camera leads towards the cursor while the mouse moves and eases back onto the hero when the cursor rests or a modal pauses the run (`data/config.json` → `camera`).
+
 ## Controls
 
-WASD moves, the mouse aims, LMB attacks, RMB fires the empowered attack. R reloads (Vector), parries (Katar) or recalls drones (Chorus). Z X C V cast abilities (B appears after the "Limit Break: abilities" item), 1–6 use active items (7 after "Limit Break: gear"). ESC pauses, TAB opens inventory and crafting. Debug builds only: F10 skips 60 s of run time, F9 grants XP and credits.
+WASD moves, the mouse aims, LMB attacks, RMB fires the empowered attack. R reloads (Vector), parries (Katar) or recalls drones (Chorus). Z X C V cast abilities (B appears after the "Limit Break: abilities" item), 1–6 use active items (7 after "Limit Break: gear"). ESC pauses, TAB opens inventory and crafting. In the hub: WASD walks, E uses a terminal, ESC closes a window or goes back to the main menu. Debug builds only: F10 skips 60 s of run time, F9 grants XP and credits.
 
 ## First run
 
 1. Open the folder in Godot 4.7 and let the first import finish.
-2. Press F5. The hub opens with 200 credits and Vector unlocked. Pick a hero and press "Начать забег", then pick 2 of the 3 starting items.
+2. Press F5. The main menu opens with 200 credits and Vector unlocked. Pick a hero card, press "Войти в хаб", walk to the portal and press E, then pick 2 of the 3 starting items.
 3. To start over, delete `user://meta_save.json` and `user://run_save.json` (Project → Open User Data Folder).
 
 ## Export
@@ -56,13 +63,13 @@ WASD moves, the mouse aims, LMB attacks, RMB fires the empowered attack. R reloa
 ## Verification
 
 ```bash
-GODOT=/path/to/Godot_v4.7 tools/check.sh            # lint, strict compile, smoke test (68 checks)
+GODOT=/path/to/Godot_v4.7 tools/check.sh            # lint, strict compile, smoke test (79 checks)
 GODOT=/path/to/Godot_v4.7 SOAK=1 tools/check.sh     # + 3-minute soak: 3 heroes x 5 locations
 godot --headless --path . res://tools/BuildWorld.tscn   # rebuild the TileSet and locations
 GODOT=/path/to/Godot_v4.7 tools/art/rebuild.sh     # redraw the art (python3 + numpy + Pillow; heroes need codeart2d), import, rebuild the world
 ```
 
-The smoke test covers the acceptance list: hub → run → draft, WASD / LMB / RMB / R / Z X C / 1–6 through the real input map, level-up draft and level-5 ultimate, elite outlines (single / dual / rainbow), shield and antiheal, tier +1 per 60 s with scaling, miniboss at 2:00 and boss at 5:00, seamless transition, final boss → loop (x1.5, items kept, tier cap +20%), death → hub with meta bank and skill-tree purchase, and the purity of the PURE modules.
+The smoke test covers the acceptance list plus the main menu, the hub terminals, the hero animations, reload bar, aim camera and HUD difficulty strip: hub → run → draft, WASD / LMB / RMB / R / Z X C / 1–6 through the real input map, level-up draft and level-5 ultimate, elite outlines (single / dual / rainbow), shield and antiheal, tier +1 per 60 s with scaling, miniboss at 2:00 and boss at 5:00, seamless transition, final boss → loop (x1.5, items kept, tier cap +20%), death → hub with meta bank and skill-tree purchase, and the purity of the PURE modules.
 
 ## MVP decisions
 

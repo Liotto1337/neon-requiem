@@ -106,7 +106,7 @@ def build_creatures(review: Path | None, manifest: dict) -> None:
         frames = creatures.frames(cid)
         w, h = frames[0].size
         fps = 4.0 if cid == "train" else 8.0
-        group = "props" if cid in ("train",) else ("allies" if cid == "drone" else "enemies")
+        group = "props" if cid in creatures.PROPS else ("allies" if cid == "drone" else "enemies")
         pack("%s/%s" % (group, cid), frames, {"move": {"frames": list(range(len(frames))), "fps": fps, "loop": True}},
              (w // 2, h // 2), manifest)
         previews.append(frames[0])
@@ -122,12 +122,15 @@ def build_fx(review: Path | None, manifest: dict) -> None:
         loop = fid != "spark"
         pack("fx/" + fid, frames, {"default": {"frames": list(range(count)), "fps": fps, "loop": loop}}, (w // 2, h // 2), manifest)
         previews += frames
+    ui = ROOT / "assets/icons/ui"
+    ui.mkdir(parents=True, exist_ok=True)
+    fx.frames("cursor")[0].save(ui / "cursor.png", optimize=True)
     if review:
         pixlib.preview(previews, 3, columns=12).save(review / "fx.png")
 
 
 def build_icons(review: Path | None, manifest: dict) -> None:
-    for kind, table in (("items", icons.ITEMS), ("abilities", icons.ABILITIES), ("meta", icons.META)):
+    for kind, table in (("items", icons.ITEMS), ("abilities", icons.ABILITIES), ("meta", icons.META), ("ui", icons.UI)):
         folder = ROOT / "assets/icons" / kind
         folder.mkdir(parents=True, exist_ok=True)
         images = []

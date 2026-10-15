@@ -33,9 +33,6 @@ monitorable = false
 [node name="Shape" type="CollisionShape2D" parent="Hurtbox"]
 shape = SubResource("CircleShape2D_hurt")
 
-[node name="Aim" type="Line2D" parent="."]
-width = 2.0
-
 [node name="Attack" type="Node" parent="."]
 script = ExtResource("2_attack")
 

@@ -324,6 +324,12 @@ texture_region_size = Vector2i(64, 64)
 8:7/0/physics_layer_0/polygon_0/points = PackedVector2Array(-32, -32, 32, -32, 32, 32, -32, 32)
 8:7/0/custom_data_0 = "solid"
 8:7/0/custom_data_1 = "wall_hub_face"
+9:7/0 = 0
+9:7/0/custom_data_0 = "none"
+9:7/0/custom_data_1 = "floor_hub_line_v"
+10:7/0 = 0
+10:7/0/custom_data_0 = "none"
+10:7/0/custom_data_1 = "floor_hub_line_v"
 
 [resource]
 tile_size = Vector2i(64, 64)

@@ -230,6 +230,10 @@ def floor_hub_line(v: int) -> Image.Image:
     return c.image()
 
 
+def floor_hub_line_v(v: int) -> Image.Image:
+    return floor_hub_line(v).transpose(Image.Transpose.TRANSPOSE)
+
+
 # ---------------------------------------------------------------- walls (top = cap seen from above)
 
 def _wall_cap(c: Canvas, top: list[str], accent: str | None, y0: int = 0, h: int = T) -> None:
@@ -565,7 +569,7 @@ def paint(tile: dict, index: int) -> Image.Image:
         "asphalt": floor_asphalt, "puddle": floor_puddle, "plate": floor_plate, "glow": floor_glow,
         "moss": floor_moss, "moss_bright": lambda v: floor_moss(v, True), "rust": floor_rust,
         "track": floor_track, "marble": floor_marble, "rune": floor_rune, "hub": floor_hub,
-        "hub_line": floor_hub_line,
+        "hub_line": floor_hub_line, "hub_line_v": floor_hub_line_v,
     }
     return floors[art](index)
 

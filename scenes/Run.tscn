@@ -49,7 +49,7 @@ z_index = 4
 z_index = 20
 
 [node name="Camera" type="Camera2D" parent="."]
-process_mode = 1
+process_mode = 3
 script = ExtResource("3_camera")
 
 [node name="Spawner" type="Node" parent="."]

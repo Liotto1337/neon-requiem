@@ -1,6 +1,6 @@
 extends RefCounted
-## Procedural neon placeholders: pixel-snapped polygons with a glowing Line2D rim and a
-## bright core. Used for every entity, pickup and projectile, so the game runs without PNGs.
+## Procedural neon shapes for effects (rings, zones, telegraphs, beams) and the shared glow
+## setup. Entities, pickups and projectiles use code-drawn sprites (core/Sprites.gd).
 
 const Db = preload("res://core/Db.gd")
 const TRIANGLE_POINTS: int = 3
@@ -108,3 +108,14 @@ static func ring(radius: float, color: Color, width: float) -> Line2D:
 	line.default_color = color
 	line.antialiased = false
 	return line
+
+
+## WorldEnvironment glow shared by the run, the hub and the main menu (data/config.json "glow").
+static func configure_glow(env: Environment) -> void:
+	env.background_mode = Environment.BG_CANVAS
+	env.glow_enabled = true
+	env.glow_hdr_threshold = Db.cfg_f("glow.threshold")
+	env.glow_intensity = Db.cfg_f("glow.intensity")
+	env.glow_strength = Db.cfg_f("glow.strength")
+	env.glow_bloom = Db.cfg_f("glow.bloom")
+	env.glow_blend_mode = Db.cfg_i("glow.blend_mode") as Environment.GlowBlendMode

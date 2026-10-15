@@ -47,9 +47,10 @@
 		{"id": "decor_lamp", "name": "Фонарь", "atlas": [7, 6], "collision": "none", "layer": "decor", "art": "decor:lamp"},
 		{"id": "decor_hub_planter", "name": "Клумба хаба", "atlas": [8, 6], "collision": "none", "layer": "decor", "art": "decor:hub_planter"},
 		{"id": "decor_hub_screen", "name": "Экран хаба", "atlas": [9, 6], "collision": "none", "layer": "decor", "art": "decor:hub_screen"},
-		{"id": "floor_hub", "name": "Пол хаба", "atlas": [0, 7], "collision": "none", "layer": "floor", "art": "hub", "variants": 4, "variant_weights": [10, 1, 1, 2]},
+		{"id": "floor_hub", "name": "Пол хаба", "atlas": [0, 7], "collision": "none", "layer": "floor", "art": "hub", "variants": 4, "variant_weights": [14, 1, 0.25, 2]},
 		{"id": "floor_hub_line", "name": "Неоновая разметка", "atlas": [4, 7], "collision": "none", "layer": "floor", "art": "hub_line", "variants": 2},
 		{"id": "wall_hub", "name": "Стена хаба", "atlas": [6, 7], "collision": "solid", "layer": "wall", "art": "wall_top:hub", "face": "wall_hub_face"},
-		{"id": "wall_hub_face", "name": "Панель хаба", "atlas": [7, 7], "collision": "solid", "layer": "wall", "art": "wall_face:hub", "variants": 2}
+		{"id": "wall_hub_face", "name": "Панель хаба", "atlas": [7, 7], "collision": "solid", "layer": "wall", "art": "wall_face:hub", "variants": 2},
+		{"id": "floor_hub_line_v", "name": "Неоновая разметка (верт.)", "atlas": [9, 7], "collision": "none", "layer": "floor", "art": "hub_line_v", "variants": 2}
 	]
 }

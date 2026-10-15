@@ -1,8 +1,9 @@
 extends PanelContainer
-## HUD slot for one ability or active item: glyph, key label, level, cooldown overlay.
-## Only displays what the HUD hands it; the cooldown runs on the run clock.
+## HUD slot for one ability or active item: code-drawn icon, key label, level, cooldown
+## overlay. Only displays what the HUD hands it; the cooldown runs on the run clock.
 
 const Db = preload("res://core/Db.gd")
+const Sprites = preload("res://core/Sprites.gd")
 const EMPTY_GLYPH: String = "·"
 const ULTIMATE_MARK: String = "УЛЬТ"
 const FAIL_FLASH_SEC: float = 0.25
@@ -13,6 +14,7 @@ var _cooldown_total: float = 0.0
 var _flash_until_msec: int = 0
 var _style: StyleBoxFlat = null
 
+@onready var _icon: TextureRect = $Icon
 @onready var _glyph: Label = $Glyph
 @onready var _key: Label = $Key
 @onready var _level: Label = $Level
@@ -33,6 +35,8 @@ func set_key(text: String) -> void:
 
 
 func show_empty() -> void:
+	_icon.texture = null
+	_glyph.visible = true
 	_glyph.text = EMPTY_GLYPH
 	_level.text = ""
 	tooltip_text = ""
@@ -45,6 +49,7 @@ func show_ability(entry: Dictionary) -> void:
 	var level: int = Db.i(entry, "level", 1)
 	var ultimate: bool = level >= AbilitySystem.max_level()
 	_glyph.text = Db.s(Db.d(data, "icon"), "glyph", "?")
+	_set_icon(Sprites.icon("abilities", Db.s(entry, "id")))
 	_level.text = ULTIMATE_MARK if ultimate else str(level)
 	tooltip_text = "%s (ур. %d)\n%s%s" % [Db.s(data, "name"), level, Db.s(data, "desc"), ("\n" + Db.s(data, "ultimate_desc")) if ultimate else ""]
 	_set_color(Db.color(Db.s(data, "color", "white")))
@@ -53,9 +58,15 @@ func show_ability(entry: Dictionary) -> void:
 func show_item(item_id: String) -> void:
 	var data: Dictionary = ItemSystem.item(item_id)
 	_glyph.text = Db.s(data, "glyph", "?")
+	_set_icon(Sprites.icon("items", item_id))
 	_level.text = ""
 	tooltip_text = "%s\n%s" % [Db.s(data, "name"), Db.s(data, "desc")]
 	_set_color(Db.color(Db.s(ItemSystem.rarity_of(item_id), "color", "white")))
+
+
+func _set_icon(texture: Texture2D) -> void:
+	_icon.texture = texture
+	_glyph.visible = texture == null
 
 
 func _set_color(color: Color) -> void:
