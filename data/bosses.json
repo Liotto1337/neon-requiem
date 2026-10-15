@@ -1,0 +1,158 @@
+{
+	"phase_invuln_sec": 0.8,
+	"drift_radius": 260.0,
+	"drift_speed": 0.5,
+	"anchor_range": 140.0,
+	"bosses": [
+		{
+			"id": "slum_enforcer", "name": "Вышибала трущоб", "kind": "miniboss", "location": "neon_slums",
+			"shape": "square", "size": 64, "scale": 1.0, "color": "magenta", "outline": "white",
+			"hp": 900.0, "contact_damage": 14.0, "speed": 85.0, "armor": 5.0,
+			"rewards": {"currency": 40, "xp": 40.0, "item_min_rarity": 1},
+			"phases": [
+				{"hp_pct": 1.0, "move": "chase", "attacks": [
+					{"pattern": "aimed_spread", "count": 3, "spread_deg": 30.0, "speed": 320.0, "damage": 10.0, "radius": 7.0, "lifetime": 3.0, "telegraph": 0.5, "cooldown": 1.8, "color": "magenta"},
+					{"pattern": "radial", "count": 12, "speed": 230.0, "damage": 9.0, "radius": 7.0, "lifetime": 3.5, "offset_deg": 15.0, "telegraph": 0.6, "cooldown": 2.4, "color": "cyan"}
+				]}
+			]
+		},
+		{
+			"id": "slum_king", "name": "Король трущоб", "kind": "boss", "location": "neon_slums",
+			"shape": "hex", "size": 64, "scale": 1.75, "color": "magenta", "outline": "white",
+			"hp": 3600.0, "contact_damage": 20.0, "speed": 75.0, "armor": 10.0,
+			"rewards": {"currency": 120, "xp": 120.0, "item_min_rarity": 2},
+			"phases": [
+				{"hp_pct": 1.0, "move": "chase", "attacks": [
+					{"pattern": "aimed_spread", "count": 5, "spread_deg": 50.0, "speed": 320.0, "damage": 12.0, "radius": 7.0, "lifetime": 3.0, "telegraph": 0.5, "cooldown": 1.6, "color": "magenta"},
+					{"pattern": "radial", "count": 18, "speed": 240.0, "damage": 10.0, "radius": 7.0, "lifetime": 3.5, "offset_deg": 10.0, "telegraph": 0.7, "cooldown": 2.2, "color": "cyan"}
+				]},
+				{"hp_pct": 0.5, "move": "drift", "attacks": [
+					{"pattern": "spiral", "arms": 3, "duration": 3.0, "interval": 0.09, "turn_deg": 13.0, "speed": 250.0, "damage": 10.0, "radius": 6.0, "lifetime": 4.0, "telegraph": 0.6, "cooldown": 1.2, "color": "magenta"},
+					{"pattern": "summon_adds", "enemy_id": "thug", "count": 6, "spread_px": 160.0, "telegraph": 0.8, "cooldown": 3.5, "color": "white"},
+					{"pattern": "aimed_spread", "count": 7, "spread_deg": 70.0, "speed": 360.0, "damage": 12.0, "radius": 7.0, "lifetime": 3.0, "telegraph": 0.5, "cooldown": 1.6, "color": "cyan"}
+				]}
+			]
+		},
+		{
+			"id": "core_sentinel", "name": "Страж ядра", "kind": "miniboss", "location": "data_core",
+			"shape": "diamond", "size": 64, "scale": 1.0, "color": "cyan", "outline": "white",
+			"hp": 1000.0, "contact_damage": 14.0, "speed": 60.0, "armor": 8.0,
+			"rewards": {"currency": 45, "xp": 45.0, "item_min_rarity": 1},
+			"phases": [
+				{"hp_pct": 1.0, "move": "anchor", "attacks": [
+					{"pattern": "radial", "count": 16, "speed": 220.0, "damage": 9.0, "radius": 6.0, "lifetime": 4.0, "offset_deg": 11.0, "telegraph": 0.6, "cooldown": 2.0, "color": "cyan"},
+					{"pattern": "laser_sweep", "duration": 1.8, "sweep_deg": 90.0, "length": 1100.0, "width": 22.0, "damage": 12.0, "tick_sec": 0.15, "telegraph": 1.0, "cooldown": 2.4, "color": "cyan"}
+				]}
+			]
+		},
+		{
+			"id": "core_overseer", "name": "Надзиратель ядра", "kind": "boss", "location": "data_core",
+			"shape": "diamond", "size": 64, "scale": 1.8, "color": "cyan", "outline": "white",
+			"hp": 4000.0, "contact_damage": 20.0, "speed": 55.0, "armor": 12.0,
+			"rewards": {"currency": 130, "xp": 130.0, "item_min_rarity": 2},
+			"phases": [
+				{"hp_pct": 1.0, "move": "anchor", "attacks": [
+					{"pattern": "laser_sweep", "duration": 2.4, "sweep_deg": 120.0, "length": 1400.0, "width": 26.0, "damage": 14.0, "tick_sec": 0.15, "telegraph": 1.0, "cooldown": 1.8, "color": "cyan"},
+					{"pattern": "radial", "count": 24, "speed": 230.0, "damage": 10.0, "radius": 6.0, "lifetime": 4.0, "offset_deg": 7.5, "telegraph": 0.7, "cooldown": 2.0, "color": "white"}
+				]},
+				{"hp_pct": 0.55, "move": "drift", "attacks": [
+					{"pattern": "spiral", "arms": 4, "duration": 3.2, "interval": 0.08, "turn_deg": 9.0, "speed": 240.0, "damage": 10.0, "radius": 6.0, "lifetime": 4.0, "telegraph": 0.6, "cooldown": 1.0, "color": "cyan"},
+					{"pattern": "laser_sweep", "duration": 3.0, "sweep_deg": 180.0, "length": 1500.0, "width": 26.0, "damage": 15.0, "tick_sec": 0.15, "telegraph": 1.0, "cooldown": 1.6, "color": "magenta"},
+					{"pattern": "summon_adds", "enemy_id": "packet", "count": 8, "spread_px": 180.0, "telegraph": 0.8, "cooldown": 3.0, "color": "white"}
+				]}
+			]
+		},
+		{
+			"id": "thorn_matriarch", "name": "Терновая матрона", "kind": "miniboss", "location": "chrome_gardens",
+			"shape": "hex", "size": 64, "scale": 1.0, "color": "lime", "outline": "white",
+			"hp": 1100.0, "contact_damage": 15.0, "speed": 70.0, "armor": 6.0,
+			"rewards": {"currency": 45, "xp": 45.0, "item_min_rarity": 1},
+			"phases": [
+				{"hp_pct": 1.0, "move": "chase", "attacks": [
+					{"pattern": "summon_adds", "enemy_id": "vine_crawler", "count": 4, "spread_px": 140.0, "telegraph": 0.8, "cooldown": 3.5, "color": "lime"},
+					{"pattern": "radial", "count": 12, "speed": 200.0, "damage": 9.0, "radius": 7.0, "lifetime": 4.0, "offset_deg": 15.0, "telegraph": 0.6, "cooldown": 2.2, "color": "lime"}
+				]}
+			]
+		},
+		{
+			"id": "gardener_prime", "name": "Садовник-прайм", "kind": "boss", "location": "chrome_gardens",
+			"shape": "star", "size": 64, "scale": 1.8, "color": "lime", "outline": "white",
+			"hp": 4200.0, "contact_damage": 20.0, "speed": 65.0, "armor": 10.0,
+			"rewards": {"currency": 130, "xp": 130.0, "item_min_rarity": 2},
+			"phases": [
+				{"hp_pct": 1.0, "move": "drift", "attacks": [
+					{"pattern": "radial", "count": 16, "speed": 180.0, "damage": 10.0, "radius": 8.0, "lifetime": 5.0, "offset_deg": 11.0, "telegraph": 0.7, "cooldown": 1.8, "color": "lime"},
+					{"pattern": "summon_adds", "enemy_id": "spore_pod", "count": 3, "spread_px": 220.0, "telegraph": 0.8, "cooldown": 4.0, "color": "magenta"}
+				]},
+				{"hp_pct": 0.5, "move": "chase", "attacks": [
+					{"pattern": "spiral", "arms": 2, "duration": 3.0, "interval": 0.07, "turn_deg": 15.0, "speed": 260.0, "damage": 10.0, "radius": 6.0, "lifetime": 4.0, "telegraph": 0.6, "cooldown": 1.2, "color": "lime"},
+					{"pattern": "aimed_spread", "count": 9, "spread_deg": 80.0, "speed": 340.0, "damage": 12.0, "radius": 7.0, "lifetime": 3.0, "telegraph": 0.5, "cooldown": 1.5, "color": "magenta"}
+				]}
+			]
+		},
+		{
+			"id": "furnace_drone", "name": "Печной дрон", "kind": "miniboss", "location": "ashen_rail",
+			"shape": "triangle", "size": 64, "scale": 1.0, "color": "amber", "outline": "white",
+			"hp": 1000.0, "contact_damage": 15.0, "speed": 95.0, "armor": 6.0,
+			"rewards": {"currency": 45, "xp": 45.0, "item_min_rarity": 1},
+			"phases": [
+				{"hp_pct": 1.0, "move": "chase", "attacks": [
+					{"pattern": "spiral", "arms": 2, "duration": 2.4, "interval": 0.1, "turn_deg": 14.0, "speed": 240.0, "damage": 9.0, "radius": 6.0, "lifetime": 4.0, "telegraph": 0.6, "cooldown": 1.6, "color": "amber"},
+					{"pattern": "aimed_spread", "count": 5, "spread_deg": 40.0, "speed": 360.0, "damage": 10.0, "radius": 7.0, "lifetime": 3.0, "telegraph": 0.5, "cooldown": 1.6, "color": "amber"}
+				]}
+			]
+		},
+		{
+			"id": "rail_baron", "name": "Рельсовый барон", "kind": "boss", "location": "ashen_rail",
+			"shape": "square", "size": 64, "scale": 1.8, "color": "amber", "outline": "white",
+			"hp": 4400.0, "contact_damage": 22.0, "speed": 95.0, "armor": 14.0,
+			"rewards": {"currency": 140, "xp": 140.0, "item_min_rarity": 2},
+			"phases": [
+				{"hp_pct": 1.0, "move": "chase", "attacks": [
+					{"pattern": "aimed_spread", "count": 3, "spread_deg": 20.0, "speed": 520.0, "damage": 14.0, "radius": 8.0, "lifetime": 2.5, "telegraph": 0.4, "cooldown": 1.2, "color": "amber"},
+					{"pattern": "laser_sweep", "duration": 1.6, "sweep_deg": 70.0, "length": 1200.0, "width": 24.0, "damage": 14.0, "tick_sec": 0.15, "telegraph": 0.9, "cooldown": 2.0, "color": "orange"}
+				]},
+				{"hp_pct": 0.6, "move": "drift", "attacks": [
+					{"pattern": "summon_adds", "enemy_id": "rail_jumper", "count": 5, "spread_px": 180.0, "telegraph": 0.8, "cooldown": 3.5, "color": "amber"},
+					{"pattern": "radial", "count": 20, "speed": 260.0, "damage": 11.0, "radius": 7.0, "lifetime": 4.0, "offset_deg": 9.0, "telegraph": 0.6, "cooldown": 1.8, "color": "amber"},
+					{"pattern": "spiral", "arms": 3, "duration": 2.8, "interval": 0.08, "turn_deg": 12.0, "speed": 270.0, "damage": 11.0, "radius": 6.0, "lifetime": 4.0, "telegraph": 0.6, "cooldown": 1.2, "color": "orange"}
+				]}
+			]
+		},
+		{
+			"id": "spire_herald", "name": "Глашатай шпиля", "kind": "miniboss", "location": "requiem_spire",
+			"shape": "diamond", "size": 64, "scale": 1.0, "color": "white", "outline": "purple",
+			"hp": 1300.0, "contact_damage": 16.0, "speed": 75.0, "armor": 8.0,
+			"rewards": {"currency": 60, "xp": 50.0, "item_min_rarity": 2},
+			"phases": [
+				{"hp_pct": 1.0, "move": "drift", "attacks": [
+					{"pattern": "spiral", "arms": 3, "duration": 2.8, "interval": 0.09, "turn_deg": 12.0, "speed": 250.0, "damage": 10.0, "radius": 6.0, "lifetime": 4.0, "telegraph": 0.6, "cooldown": 1.4, "color": "purple"},
+					{"pattern": "radial", "count": 20, "speed": 240.0, "damage": 10.0, "radius": 6.0, "lifetime": 4.0, "offset_deg": 9.0, "telegraph": 0.6, "cooldown": 2.0, "color": "white"}
+				]}
+			]
+		},
+		{
+			"id": "requiem", "name": "Реквием", "kind": "boss", "location": "requiem_spire", "final": true,
+			"shape": "star", "size": 64, "scale": 2.2, "color": "white", "outline": "purple",
+			"hp": 7000.0, "contact_damage": 24.0, "speed": 70.0, "armor": 16.0,
+			"rewards": {"currency": 300, "xp": 0.0, "item_min_rarity": 3},
+			"phases": [
+				{"hp_pct": 1.0, "move": "anchor", "attacks": [
+					{"pattern": "radial", "count": 24, "speed": 240.0, "damage": 11.0, "radius": 7.0, "lifetime": 4.0, "offset_deg": 7.5, "telegraph": 0.6, "cooldown": 1.6, "color": "white"},
+					{"pattern": "aimed_spread", "count": 7, "spread_deg": 60.0, "speed": 380.0, "damage": 13.0, "radius": 7.0, "lifetime": 3.0, "telegraph": 0.5, "cooldown": 1.4, "color": "purple"}
+				]},
+				{"hp_pct": 0.66, "move": "drift", "attacks": [
+					{"pattern": "spiral", "arms": 4, "duration": 3.2, "interval": 0.08, "turn_deg": 10.0, "speed": 260.0, "damage": 11.0, "radius": 6.0, "lifetime": 4.0, "telegraph": 0.6, "cooldown": 1.0, "color": "purple"},
+					{"pattern": "laser_sweep", "duration": 2.8, "sweep_deg": 160.0, "length": 1500.0, "width": 28.0, "damage": 16.0, "tick_sec": 0.15, "telegraph": 1.0, "cooldown": 1.6, "color": "white"},
+					{"pattern": "summon_adds", "enemy_id": "choir_wisp", "count": 6, "spread_px": 200.0, "telegraph": 0.8, "cooldown": 3.5, "color": "white"}
+				]},
+				{"hp_pct": 0.33, "move": "chase", "attacks": [
+					{"pattern": "spiral", "arms": 5, "duration": 3.6, "interval": 0.07, "turn_deg": 11.0, "speed": 290.0, "damage": 12.0, "radius": 6.0, "lifetime": 4.0, "telegraph": 0.5, "cooldown": 0.9, "color": "white"},
+					{"pattern": "laser_sweep", "duration": 3.2, "sweep_deg": 360.0, "length": 1600.0, "width": 30.0, "damage": 18.0, "tick_sec": 0.15, "telegraph": 1.0, "cooldown": 1.4, "color": "purple"},
+					{"pattern": "radial", "count": 30, "speed": 280.0, "damage": 12.0, "radius": 7.0, "lifetime": 4.0, "offset_deg": 6.0, "telegraph": 0.5, "cooldown": 1.4, "color": "magenta"},
+					{"pattern": "summon_adds", "enemy_id": "requiem_knight", "count": 2, "spread_px": 220.0, "telegraph": 0.8, "cooldown": 5.0, "color": "purple"}
+				]}
+			]
+		}
+	]
+}

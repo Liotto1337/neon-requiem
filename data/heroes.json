@@ -1,0 +1,169 @@
+{
+	"heroes": [
+		{
+			"id": "vector",
+			"name": "Вектор",
+			"class": "ranged",
+			"class_name": "Стрелок",
+			"desc": "Винтовка с магазином: высокий урон по одной цели. R — перезарядка.",
+			"color": "cyan",
+			"shape": "diamond",
+			"size": 32,
+			"unlock_cost": 0,
+			"stats": {
+				"hp_max": 100,
+				"mana_max": 100,
+				"hp_regen": 0.0,
+				"mana_regen": 5.0,
+				"move_speed": 250.0,
+				"crit_chance": 8.0,
+				"crit_mult": 1.6,
+				"armor": 0.0,
+				"pickup_radius": 90.0
+			},
+			"attack": {
+				"kind": "bolt",
+				"damage": 14.0,
+				"cooldown": 0.16,
+				"speed": 1100.0,
+				"radius": 5.0,
+				"lifetime": 0.9,
+				"pierce": 0,
+				"spread_deg": 2.0,
+				"color": "cyan",
+				"shape": "bolt",
+				"magazine": 24,
+				"reload_sec": 1.1
+			},
+			"empowered": {
+				"kind": "rail",
+				"damage_mult": 4.0,
+				"cooldown": 1.6,
+				"ammo_cost": 4,
+				"speed": 1800.0,
+				"radius": 9.0,
+				"pierce": 6,
+				"lifetime": 0.8,
+				"color": "white",
+				"shape": "bolt"
+			},
+			"r_action": {
+				"kind": "reload",
+				"label": "Перезарядка"
+			},
+			"abilities": ["piercing_shot", "arc_chain", "overdrive"],
+			"starting_items": ["scope_chip", "damage_chip", "crit_lens"],
+			"signature_item": "scope_chip",
+			"start_drones": 0
+		},
+		{
+			"id": "katar",
+			"name": "Катар",
+			"class": "melee",
+			"class_name": "Клинок",
+			"desc": "Быстрые удары и рывки с неуязвимостью. R — парирование.",
+			"color": "magenta",
+			"shape": "triangle",
+			"size": 32,
+			"unlock_cost": 400,
+			"stats": {
+				"hp_max": 100,
+				"mana_max": 100,
+				"hp_regen": 0.2,
+				"mana_regen": 5.0,
+				"move_speed": 285.0,
+				"crit_chance": 6.0,
+				"crit_mult": 1.5,
+				"armor": 6.0,
+				"pickup_radius": 90.0
+			},
+			"attack": {
+				"kind": "slash",
+				"damage": 24.0,
+				"cooldown": 0.3,
+				"range": 62.0,
+				"radius": 58.0,
+				"arc_deg": 120.0,
+				"lifetime": 0.12,
+				"color": "magenta",
+				"shape": "arc",
+				"knockback": 220.0
+			},
+			"empowered": {
+				"kind": "dash_strike",
+				"damage_mult": 2.5,
+				"cooldown": 2.0,
+				"mana_cost": 8,
+				"distance": 260.0,
+				"duration": 0.18,
+				"radius": 40.0,
+				"color": "white"
+			},
+			"r_action": {
+				"kind": "parry",
+				"label": "Парирование",
+				"window_sec": 0.3,
+				"cooldown": 1.2,
+				"counter_damage": 40.0,
+				"counter_radius": 150.0,
+				"mana_refund": 10
+			},
+			"abilities": ["blink_strike", "whirl_slash", "emp_pulse"],
+			"starting_items": ["kinetic_wraps", "servo_boots", "leech_fang"],
+			"signature_item": "kinetic_wraps",
+			"start_drones": 0
+		},
+		{
+			"id": "chorus",
+			"name": "Хор",
+			"class": "summoner",
+			"class_name": "Призыватель",
+			"desc": "Дроны атакуют сами, ЛКМ указывает им цель. R — отозвать дронов.",
+			"color": "lime",
+			"shape": "hex",
+			"size": 32,
+			"unlock_cost": 600,
+			"stats": {
+				"hp_max": 100,
+				"mana_max": 100,
+				"hp_regen": 0.0,
+				"mana_regen": 6.0,
+				"move_speed": 255.0,
+				"crit_chance": 5.0,
+				"crit_mult": 1.5,
+				"armor": 2.0,
+				"pickup_radius": 110.0
+			},
+			"attack": {
+				"kind": "pulse",
+				"damage": 9.0,
+				"cooldown": 0.35,
+				"speed": 700.0,
+				"radius": 7.0,
+				"lifetime": 1.0,
+				"pierce": 1,
+				"color": "lime",
+				"shape": "orb",
+				"focus_sec": 3.0
+			},
+			"empowered": {
+				"kind": "overclock",
+				"duration": 3.0,
+				"fire_rate_mult": 2.5,
+				"cooldown": 7.0,
+				"mana_cost": 15
+			},
+			"r_action": {
+				"kind": "recall",
+				"label": "Отзыв дронов",
+				"cooldown": 4.0,
+				"haste_sec": 2.5,
+				"haste_mult": 1.6
+			},
+			"abilities": ["deploy_drone", "swarm_missiles", "orbit_blades"],
+			"starting_items": ["signal_amplifier", "mana_coil", "static_charm"],
+			"signature_item": "signal_amplifier",
+			"start_drones": 1
+		}
+	]
+}

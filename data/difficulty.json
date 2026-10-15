@@ -1,0 +1,34 @@
+{
+	"tier_interval_sec": 60,
+	"base_tier_cap": 20,
+	"hp_per_tier": 0.16,
+	"damage_per_tier": 0.08,
+	"count_per_tier": 0.09,
+	"speed_per_tier": 0.012,
+	"xp_per_tier": 0.05,
+	"boss_hp_per_tier": 0.1,
+	"boss_damage_per_tier": 0.06,
+	"loop": {
+		"multiplier_factor": 1.5,
+		"tier_cap_bonus": 0.2
+	},
+	"spawn": {
+		"pulse_sec": 2.0,
+		"base_count": 2.0,
+		"burst_every_pulses": 15,
+		"burst_count": 10,
+		"unique_weight_mult": 1.5,
+		"max_alive_base": 50,
+		"max_alive_per_tier": 6,
+		"max_alive_cap": 220
+	},
+	"elites": {
+		"base_chance": 0.02,
+		"chance_per_tier": 0.012,
+		"max_chance": 0.3,
+		"double_from_tier": 5,
+		"double_chance": 0.25,
+		"triple_from_tier": 10,
+		"triple_chance": 0.1
+	}
+}

@@ -1,0 +1,128 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/InventoryOverlay.gd" id="1_script"]
+
+[node name="InventoryOverlay" type="Control"]
+process_mode = 3
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0509804, 0.0235294, 0.0941176, 0.8)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 72
+theme_override_constants/margin_top = 64
+theme_override_constants/margin_right = 72
+theme_override_constants/margin_bottom = 64
+
+[node name="Panel" type="PanelContainer" parent="Margin"]
+layout_mode = 2
+
+[node name="Columns" type="HBoxContainer" parent="Margin/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 28
+
+[node name="StatsCol" type="VBoxContainer" parent="Margin/Panel/Columns"]
+custom_minimum_size = Vector2(380, 0)
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="Margin/Panel/Columns/StatsCol"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.941176, 1, 1)
+theme_override_font_sizes/font_size = 26
+text = "ХАРАКТЕРИСТИКИ"
+
+[node name="Stats" type="VBoxContainer" parent="Margin/Panel/Columns/StatsCol"]
+layout_mode = 2
+
+[node name="ItemsCol" type="VBoxContainer" parent="Margin/Panel/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="AbilitiesTitle" type="Label" parent="Margin/Panel/Columns/ItemsCol"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.180392, 0.533333, 1)
+theme_override_font_sizes/font_size = 26
+text = "СПОСОБНОСТИ"
+
+[node name="Abilities" type="Label" parent="Margin/Panel/Columns/ItemsCol"]
+layout_mode = 2
+text = "—"
+
+[node name="PassivesTitle" type="Label" parent="Margin/Panel/Columns/ItemsCol"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.713726, 1, 0, 1)
+theme_override_font_sizes/font_size = 26
+text = "ПАССИВНЫЕ ПРЕДМЕТЫ"
+
+[node name="Scroll" type="ScrollContainer" parent="Margin/Panel/Columns/ItemsCol"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Passives" type="GridContainer" parent="Margin/Panel/Columns/ItemsCol/Scroll"]
+layout_mode = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 3
+
+[node name="ActivesTitle" type="Label" parent="Margin/Panel/Columns/ItemsCol"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.721569, 0, 1)
+theme_override_font_sizes/font_size = 26
+text = "АКТИВНЫЕ ПРЕДМЕТЫ"
+
+[node name="Actives" type="HBoxContainer" parent="Margin/Panel/Columns/ItemsCol"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="CraftCol" type="VBoxContainer" parent="Margin/Panel/Columns"]
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Margin/Panel/Columns/CraftCol"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.721569, 0, 1)
+theme_override_font_sizes/font_size = 26
+text = "КРАФТ"
+
+[node name="Recipes" type="VBoxContainer" parent="Margin/Panel/Columns/CraftCol"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Hint" type="Label" parent="Margin/Panel/Columns/CraftCol"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.431373, 0.352941, 0.541176, 1)
+theme_override_font_sizes/font_size = 17
+text = "Нет доступных рецептов. Соберите два компонента рецепта или два предмета одной семьи (стаки считаются)."
+autowrap_mode = 3
+
+[node name="Close" type="Label" parent="Margin/Panel/Columns/CraftCol"]
+layout_mode = 2
+size_flags_vertical = 10
+theme_override_colors/font_color = Color(0.431373, 0.352941, 0.541176, 1)
+theme_override_font_sizes/font_size = 16
+text = "TAB или ESC — закрыть"
+horizontal_alignment = 2

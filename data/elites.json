@@ -1,0 +1,61 @@
+{
+	"base": {
+		"size_mult": 1.25,
+		"xp_mult": 4.0,
+		"currency_mult": 3.0,
+		"currency_chance": 0.8,
+		"rainbow_from": 3,
+		"outline_boost": 1.0,
+		"hp_bar_width": 34.0
+	},
+	"modifiers": [
+		{
+			"id": "antiheal",
+			"name": "Антихил",
+			"color": "red",
+			"weight": 10,
+			"hp_mult": 1.6,
+			"effect": {"antiheal_sec": 4.0, "aura_radius": 260.0, "aura_refresh_sec": 0.5, "blocks": ["regen", "lifesteal"]}
+		},
+		{
+			"id": "shielded",
+			"name": "Щит",
+			"color": "blue",
+			"weight": 10,
+			"hp_mult": 1.3,
+			"effect": {"shield_hp_mult": 1.5}
+		},
+		{
+			"id": "aura",
+			"name": "Аура",
+			"color": "purple",
+			"weight": 8,
+			"hp_mult": 1.5,
+			"effect": {"radius": 300.0, "damage_pct": 35.0, "pulse_sec": 0.5, "buff_sec": 1.0}
+		},
+		{
+			"id": "berserk",
+			"name": "Берсерк",
+			"color": "orange",
+			"weight": 10,
+			"hp_mult": 1.4,
+			"effect": {"damage_mult": 2.0, "speed_mult": 1.5}
+		},
+		{
+			"id": "vampiric",
+			"name": "Вампир",
+			"color": "green",
+			"weight": 8,
+			"hp_mult": 1.5,
+			"effect": {"heal_mult": 3.0}
+		},
+		{
+			"id": "explosive",
+			"name": "Взрывной",
+			"color": "yellow",
+			"weight": 9,
+			"hp_mult": 1.3,
+			"effect": {"radius": 130.0, "damage": 28.0, "fuse": 0.55}
+		}
+	]
+}

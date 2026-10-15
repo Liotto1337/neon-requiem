@@ -1,0 +1,191 @@
+{
+	"save_version": 1,
+	"autosave_seconds": 30,
+	"scenes": {
+		"hub": "res://scenes/Hub.tscn",
+		"run": "res://scenes/Run.tscn"
+	},
+	"palette": {
+		"bg": "#1a0b2e",
+		"cyan": "#00f0ff",
+		"magenta": "#ff2e88",
+		"lime": "#b6ff00",
+		"amber": "#ffb800",
+		"white": "#f0f0ff",
+		"red": "#ff3344",
+		"blue": "#3a7dff",
+		"purple": "#b14dff",
+		"orange": "#ff7a1a",
+		"green": "#33ff77",
+		"yellow": "#ffee33",
+		"dark": "#0d0618",
+		"panel": "#24103f",
+		"dim": "#6e5a8a"
+	},
+	"glow": {
+		"threshold": 0.8,
+		"intensity": 0.9,
+		"strength": 1.0,
+		"bloom": 0.05,
+		"blend_mode": 1,
+		"hdr_energy": 1.6
+	},
+	"art": {
+		"pixel_px": 2.0,
+		"edge_width": 2.0,
+		"fill_darken": 0.62,
+		"fill_alpha": 0.92,
+		"core_scale": 0.28,
+		"circle_segments": 12,
+		"outline_pad_px": 14.0,
+		"outline_thickness": 0.07,
+		"outline_pixel_steps": 24.0
+	},
+	"physics_layers": {
+		"player": 1,
+		"enemy": 2,
+		"player_projectile": 3,
+		"enemy_projectile": 4,
+		"pickup": 5,
+		"wall": 6
+	},
+	"combat": {
+		"armor_k": 100.0,
+		"min_cooldown_mult": 0.4,
+		"knockback_decay": 900.0,
+		"pull_decay": 6.0,
+		"burn_tick_sec": 0.5,
+		"homing_retarget_sec": 0.25,
+		"homing_search_px": 700.0,
+		"query_max_results": 64
+	},
+	"slots": {
+		"abilities": 4,
+		"active_items": 6,
+		"ability_actions": ["ability_z", "ability_x", "ability_c", "ability_v", "ability_b"],
+		"item_actions": ["item_1", "item_2", "item_3", "item_4", "item_5", "item_6", "item_7"]
+	},
+	"player": {
+		"level_cap": 30,
+		"xp_base": 6.0,
+		"xp_growth": 1.13,
+		"xp_flat": 4.0,
+		"hit_iframes_sec": 0.4,
+		"contact_cooldown_sec": 0.5,
+		"flash_sec": 0.1,
+		"aim_line_px": 38.0,
+		"hurt_shake": 6.0,
+		"hurt_shake_sec": 0.15
+	},
+	"run": {
+		"draft_picks": 2,
+		"transition_delay_sec": 1.2,
+		"transition_fade_sec": 0.5,
+		"spawn_ring_px": 1150.0,
+		"spawn_ring_jitter_px": 160.0,
+		"spawn_attempts": 8,
+		"bounds_margin_px": 64.0,
+		"boss_spawn_offset_px": 360.0,
+		"max_enemy_projectiles": 700,
+		"max_pickups": 350,
+		"item_full_currency": 30,
+		"seed_salt_location": 7919,
+		"seed_salt_loop": 104729
+	},
+	"levelup": {
+		"options": 3,
+		"weights": {
+			"new_ability": 1.0,
+			"upgrade_ability": 1.6,
+			"item": 1.3
+		},
+		"class_bias": 3.0,
+		"fallback_currency": 25,
+		"attempts_per_option": 8
+	},
+	"camera": {
+		"follow_speed": 10.0,
+		"shake_decay": 7.0,
+		"max_shake_px": 24.0
+	},
+	"fx": {
+		"damage_number_rise_px": 42.0,
+		"damage_number_sec": 0.6,
+		"damage_numbers_max": 90,
+		"damage_number_font": 18,
+		"crit_font": 26,
+		"beam_width": 4.0,
+		"beam_sec": 0.16,
+		"ring_sec": 0.35,
+		"ring_width": 3.0,
+		"telegraph_alpha": 0.45,
+		"telegraph_width": 3.0,
+		"boss_phase_shake": 14.0,
+		"boss_phase_shake_sec": 0.4,
+		"enemy_flash_sec": 0.07,
+		"blast_fx_sec": 0.25
+	},
+	"pickups": {
+		"magnet_speed": 560.0,
+		"magnet_accel": 1600.0,
+		"jitter_px": 18.0,
+		"spin_speed": 2.5,
+		"sizes": {
+			"xp": 8.0,
+			"currency": 10.0,
+			"heal": 12.0,
+			"powerup": 22.0
+		},
+		"colors": {
+			"xp": "lime",
+			"currency": "amber",
+			"heal": "magenta"
+		}
+	},
+	"meta": {
+		"start_currency": 200,
+		"defeat_keep_fraction": 0.0,
+		"starting_hero": "vector"
+	},
+	"ui": {
+		"toast_sec": 2.2,
+		"toast_max": 4,
+		"card_width": 300,
+		"card_height": 170,
+		"slot_size": 78,
+		"node_button_width": 270
+	},
+	"audio": {
+		"buses": ["Master"]
+	},
+	"input": {
+		"move_wasd_up": ["key:W"],
+		"move_wasd_down": ["key:S"],
+		"move_wasd_left": ["key:A"],
+		"move_wasd_right": ["key:D"],
+		"attack_lmb": ["mouse:1"],
+		"attack_rmb": ["mouse:2"],
+		"reload_r": ["key:R"],
+		"ability_z": ["key:Z"],
+		"ability_x": ["key:X"],
+		"ability_c": ["key:C"],
+		"ability_v": ["key:V"],
+		"ability_b": ["key:B"],
+		"item_1": ["key:1"],
+		"item_2": ["key:2"],
+		"item_3": ["key:3"],
+		"item_4": ["key:4"],
+		"item_5": ["key:5"],
+		"item_6": ["key:6"],
+		"item_7": ["key:7"],
+		"pause_esc": ["key:Escape"],
+		"inventory_tab": ["key:Tab"],
+		"debug_skip": ["key:F10"],
+		"debug_xp": ["key:F9"]
+	},
+	"debug": {
+		"skip_sec": 60.0,
+		"xp_amount": 100,
+		"currency_amount": 500
+	}
+}

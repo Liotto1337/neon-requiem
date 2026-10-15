@@ -1,0 +1,39 @@
+{
+	"branches": [
+		{"id": "offense", "name": "Атака", "color": "magenta"},
+		{"id": "defense", "name": "Защита", "color": "cyan"},
+		{"id": "utility", "name": "Утилиты", "color": "lime"}
+	],
+	"nodes": [
+		{"id": "o_power", "branch": "offense", "name": "Сила", "desc": "+4% урона за уровень", "max_level": 5, "costs": [40, 70, 110, 160, 220], "requires": [], "stats": {"damage_pct": 4.0}},
+		{"id": "o_crit", "branch": "offense", "name": "Точность", "desc": "+2% шанса крита за уровень", "max_level": 5, "costs": [50, 80, 120, 170, 230], "requires": ["o_power"], "stats": {"crit_chance": 2.0}},
+		{"id": "o_tempo", "branch": "offense", "name": "Темп", "desc": "+4% скорости атаки за уровень", "max_level": 5, "costs": [50, 80, 120, 170, 230], "requires": ["o_power"], "stats": {"attack_speed_pct": 4.0}},
+		{"id": "o_swarm", "branch": "offense", "name": "Рой", "desc": "+8% урона дронов за уровень", "max_level": 3, "costs": [60, 100, 160], "requires": ["o_power"], "stats": {"drone_damage_pct": 8.0}},
+		{"id": "o_lethal", "branch": "offense", "name": "Летальность", "desc": "+10% крит. урона за уровень", "max_level": 3, "costs": [80, 140, 220], "requires": ["o_crit"], "stats": {"crit_mult": 0.1}},
+		{"id": "o_reach", "branch": "offense", "name": "Размах", "desc": "+5% площади эффектов за уровень", "max_level": 3, "costs": [70, 120, 180], "requires": ["o_tempo"], "stats": {"area_pct": 5.0}},
+		{"id": "o_velocity", "branch": "offense", "name": "Баллистика", "desc": "+6% скорости снарядов за уровень", "max_level": 3, "costs": [40, 70, 110], "requires": ["o_tempo"], "stats": {"projectile_speed_pct": 6.0}},
+		{"id": "o_hunter", "branch": "offense", "name": "Охотник на элиту", "desc": "+10% урона по элите за уровень", "max_level": 3, "costs": [90, 150, 220], "requires": ["o_lethal"], "stats": {"elite_damage_pct": 10.0}},
+		{"id": "o_focus", "branch": "offense", "name": "Фокус", "desc": "−3% перезарядки за уровень", "max_level": 3, "costs": [100, 160, 240], "requires": ["o_reach", "o_lethal"], "stats": {"cooldown_reduction_pct": 3.0}},
+		{"id": "o_regicide", "branch": "offense", "name": "Цареубийца", "desc": "+10% урона по боссам за уровень", "max_level": 3, "costs": [120, 200, 300], "requires": ["o_hunter"], "stats": {"boss_damage_pct": 10.0}},
+		{"id": "d_vitality", "branch": "defense", "name": "Живучесть", "desc": "+10 к макс. HP за уровень", "max_level": 5, "costs": [40, 70, 110, 160, 220], "requires": [], "stats": {"hp_max_flat": 10.0}},
+		{"id": "d_plating", "branch": "defense", "name": "Броня", "desc": "+3 брони за уровень", "max_level": 5, "costs": [50, 80, 120, 170, 230], "requires": ["d_vitality"], "stats": {"armor": 3.0}},
+		{"id": "d_regen", "branch": "defense", "name": "Регенерация", "desc": "+0,3 HP/с за уровень", "max_level": 5, "costs": [50, 80, 120, 170, 230], "requires": ["d_vitality"], "stats": {"hp_regen": 0.3}},
+		{"id": "d_reservoir", "branch": "defense", "name": "Резервуар", "desc": "+10 к макс. мане за уровень", "max_level": 3, "costs": [40, 70, 110], "requires": ["d_vitality"], "stats": {"mana_max_flat": 10.0}},
+		{"id": "d_leech", "branch": "defense", "name": "Вампиризм", "desc": "+1% вампиризма за уровень", "max_level": 3, "costs": [90, 150, 220], "requires": ["d_regen"], "stats": {"lifesteal_pct": 1.0}},
+		{"id": "d_medic", "branch": "defense", "name": "Медик", "desc": "+10% лечения за уровень", "max_level": 3, "costs": [60, 100, 150], "requires": ["d_regen"], "stats": {"heal_pct": 10.0}},
+		{"id": "d_spikes", "branch": "defense", "name": "Шипы", "desc": "+20% урона касанием в ответ за уровень", "max_level": 3, "costs": [60, 100, 150], "requires": ["d_plating"], "stats": {"thorns_pct": 20.0}},
+		{"id": "d_barrier", "branch": "defense", "name": "Стартовый щит", "desc": "+20 щита в начале локации за уровень", "max_level": 3, "costs": [80, 130, 200], "requires": ["d_plating"], "stats": {"start_shield": 20.0}},
+		{"id": "d_flow", "branch": "defense", "name": "Поток", "desc": "+0,5 маны/с за уровень", "max_level": 5, "costs": [50, 80, 120, 170, 230], "requires": ["d_reservoir"], "stats": {"mana_regen": 0.5}},
+		{"id": "d_bulwark", "branch": "defense", "name": "Бастион", "desc": "+25 к макс. HP за уровень", "max_level": 2, "costs": [200, 320], "requires": ["d_barrier", "d_leech"], "stats": {"hp_max_flat": 25.0}},
+		{"id": "u_stride", "branch": "utility", "name": "Шаг", "desc": "+3% скорости бега за уровень", "max_level": 5, "costs": [40, 70, 110, 160, 220], "requires": [], "stats": {"move_speed_pct": 3.0}},
+		{"id": "u_magnet", "branch": "utility", "name": "Магнит", "desc": "+10% радиуса сбора за уровень", "max_level": 5, "costs": [30, 50, 80, 120, 170], "requires": ["u_stride"], "stats": {"pickup_radius_pct": 10.0}},
+		{"id": "u_chrono", "branch": "utility", "name": "Хроно", "desc": "+15% длительности бонусов за уровень", "max_level": 3, "costs": [60, 100, 150], "requires": ["u_stride"], "stats": {"powerup_duration_pct": 15.0}},
+		{"id": "u_scholar", "branch": "utility", "name": "Учёный", "desc": "+5% опыта за уровень", "max_level": 5, "costs": [50, 80, 120, 170, 230], "requires": ["u_magnet"], "stats": {"xp_gain_pct": 5.0}},
+		{"id": "u_greed", "branch": "utility", "name": "Жадность", "desc": "+8% кредитов за уровень", "max_level": 5, "costs": [50, 80, 120, 170, 230], "requires": ["u_magnet"], "stats": {"currency_gain_pct": 8.0}},
+		{"id": "u_choice", "branch": "utility", "name": "Выбор", "desc": "+1 вариант при повышении уровня", "max_level": 1, "costs": [400], "requires": ["u_scholar"], "stats": {"levelup_options_flat": 1.0}},
+		{"id": "u_luck", "branch": "utility", "name": "Удача", "desc": "+5% к шансу редких предметов за уровень", "max_level": 3, "costs": [80, 130, 200], "requires": ["u_greed"], "stats": {"luck_pct": 5.0}},
+		{"id": "u_capital", "branch": "utility", "name": "Капитал", "desc": "+20 кредитов в начале забега за уровень", "max_level": 3, "costs": [80, 130, 200], "requires": ["u_greed"], "stats": {"start_currency": 20.0}},
+		{"id": "u_overclock", "branch": "utility", "name": "Разгон", "desc": "−2% перезарядки за уровень", "max_level": 3, "costs": [120, 180, 260], "requires": ["u_chrono"], "stats": {"cooldown_reduction_pct": 2.0}},
+		{"id": "u_pathfinder", "branch": "utility", "name": "Следопыт", "desc": "−10% перезарядки рывка за уровень", "max_level": 2, "costs": [150, 240], "requires": ["u_overclock"], "stats": {"dash_cooldown_pct": 10.0}}
+	]
+}

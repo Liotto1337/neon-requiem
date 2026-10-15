@@ -1,0 +1,87 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://scenes/scripts/Run.gd" id="1_run"]
+[ext_resource type="PackedScene" path="res://scenes/entities/Player.tscn" id="2_player"]
+[ext_resource type="Script" path="res://scenes/fx/ScreenShake.gd" id="3_camera"]
+[ext_resource type="Script" path="res://scenes/scripts/RunSpawner.gd" id="4_spawner"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="5_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/InventoryOverlay.tscn" id="6_inventory"]
+[ext_resource type="PackedScene" path="res://scenes/ui/LevelUpModal.tscn" id="7_levelup"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HeroDraftModal.tscn" id="8_draft"]
+[ext_resource type="PackedScene" path="res://scenes/ui/GameOverModal.tscn" id="9_gameover"]
+[ext_resource type="PackedScene" path="res://scenes/ui/LoopChoiceModal.tscn" id="10_loop"]
+[ext_resource type="PackedScene" path="res://scenes/ui/PauseMenu.tscn" id="11_pause"]
+
+[sub_resource type="Environment" id="Environment_glow"]
+background_mode = 3
+glow_enabled = true
+glow_intensity = 0.9
+glow_bloom = 0.05
+glow_blend_mode = 1
+glow_hdr_threshold = 0.8
+
+[node name="Run" type="Node2D"]
+process_mode = 3
+script = ExtResource("1_run")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_glow")
+
+[node name="World" type="Node2D" parent="."]
+process_mode = 1
+
+[node name="LocationSlot" type="Node2D" parent="World"]
+
+[node name="Pickups" type="Node2D" parent="World"]
+
+[node name="Enemies" type="Node2D" parent="World"]
+
+[node name="Projectiles" type="Node2D" parent="World"]
+z_index = 5
+
+[node name="Drones" type="Node2D" parent="World"]
+z_index = 6
+
+[node name="Player" parent="World" instance=ExtResource("2_player")]
+z_index = 4
+
+[node name="Fx" type="Node2D" parent="World"]
+z_index = 20
+
+[node name="Camera" type="Camera2D" parent="."]
+process_mode = 1
+script = ExtResource("3_camera")
+
+[node name="Spawner" type="Node" parent="."]
+process_mode = 1
+script = ExtResource("4_spawner")
+
+[node name="UI" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="HUD" parent="UI" instance=ExtResource("5_hud")]
+
+[node name="InventoryOverlay" parent="UI" instance=ExtResource("6_inventory")]
+
+[node name="LevelUpModal" parent="UI" instance=ExtResource("7_levelup")]
+
+[node name="HeroDraftModal" parent="UI" instance=ExtResource("8_draft")]
+
+[node name="GameOverModal" parent="UI" instance=ExtResource("9_gameover")]
+
+[node name="LoopChoiceModal" parent="UI" instance=ExtResource("10_loop")]
+
+[node name="PauseMenu" parent="UI" instance=ExtResource("11_pause")]
+
+[node name="FadeLayer" type="CanvasLayer" parent="."]
+layer = 20
+
+[node name="Fade" type="ColorRect" parent="FadeLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0)

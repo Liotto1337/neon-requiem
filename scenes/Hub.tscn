@@ -1,0 +1,159 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/scripts/Hub.gd" id="1_hub"]
+
+[node name="Hub" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_hub")
+
+[node name="Bg" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.101961, 0.0431373, 0.180392, 1)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 32
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 32
+
+[node name="Rows" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Header" type="HBoxContainer" parent="Margin/Rows"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Margin/Rows/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.941176, 1, 1)
+theme_override_colors/font_outline_color = Color(1, 0.180392, 0.533333, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 64
+text = "NEON REQUIEM"
+
+[node name="Spacer" type="Control" parent="Margin/Rows/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Currency" type="Label" parent="Margin/Rows/Header"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(1, 0.721569, 0, 1)
+theme_override_font_sizes/font_size = 34
+text = "Кредиты: 0"
+
+[node name="Stats" type="Label" parent="Margin/Rows"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.431373, 0.352941, 0.541176, 1)
+theme_override_font_sizes/font_size = 18
+text = "Забегов: 0"
+
+[node name="Tabs" type="TabContainer" parent="Margin/Rows"]
+layout_mode = 2
+size_flags_vertical = 3
+current_tab = 0
+
+[node name="Heroes" type="VBoxContainer" parent="Margin/Rows/Tabs"]
+layout_mode = 2
+theme_override_constants/separation = 18
+metadata/_tab_index = 0
+
+[node name="Cards" type="HBoxContainer" parent="Margin/Rows/Tabs/Heroes"]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="Info" type="Label" parent="Margin/Rows/Tabs/Heroes"]
+layout_mode = 2
+text = "Выбран герой"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Tree" type="HBoxContainer" parent="Margin/Rows/Tabs"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 20
+metadata/_tab_index = 1
+
+[node name="Shop" type="VBoxContainer" parent="Margin/Rows/Tabs"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 14
+metadata/_tab_index = 2
+
+[node name="SignatureTitle" type="Label" parent="Margin/Rows/Tabs/Shop"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.180392, 0.533333, 1)
+theme_override_font_sizes/font_size = 26
+text = "СТАРТОВЫЙ ПРЕДМЕТ ГЕРОЯ"
+
+[node name="Signature" type="HBoxContainer" parent="Margin/Rows/Tabs/Shop"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Text" type="Label" parent="Margin/Rows/Tabs/Shop/Signature"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Предмет"
+autowrap_mode = 3
+
+[node name="Upgrade" type="Button" parent="Margin/Rows/Tabs/Shop/Signature"]
+custom_minimum_size = Vector2(300, 60)
+layout_mode = 2
+size_flags_vertical = 4
+text = "Улучшить"
+
+[node name="ProductsTitle" type="Label" parent="Margin/Rows/Tabs/Shop"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.721569, 0, 1)
+theme_override_font_sizes/font_size = 26
+text = "ПОКУПКИ (заглушка Яндекс Игр)"
+
+[node name="Products" type="GridContainer" parent="Margin/Rows/Tabs/Shop"]
+layout_mode = 2
+theme_override_constants/h_separation = 14
+theme_override_constants/v_separation = 14
+columns = 2
+
+[node name="Ad" type="Button" parent="Margin/Rows/Tabs/Shop"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+text = "Кредиты за рекламу"
+
+[node name="Footer" type="HBoxContainer" parent="Margin/Rows"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Toast" type="Label" parent="Margin/Rows/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(1, 0.721569, 0, 1)
+
+[node name="Continue" type="Button" parent="Margin/Rows/Footer"]
+custom_minimum_size = Vector2(320, 68)
+layout_mode = 2
+text = "Продолжить забег"
+
+[node name="Start" type="Button" parent="Margin/Rows/Footer"]
+custom_minimum_size = Vector2(360, 68)
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Начать забег"

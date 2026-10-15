@@ -1,0 +1,6 @@
+.godot/
+*.import
+export/
+export_presets.cfg
+__pycache__/
+override.cfg
