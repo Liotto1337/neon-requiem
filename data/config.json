@@ -25,13 +25,15 @@
 	},
 	"glow": {
 		"threshold": 0.9,
-		"intensity": 0.9,
+		"intensity": 0.6,
 		"strength": 1.0,
 		"bloom": 0.05,
 		"blend_mode": 1,
 		"hdr_energy": 1.6
 	},
 	"art": {
+		"pixel_scale": 4.0,
+		"facing_vertical_bias": 1.15,
 		"pixel_px": 2.0,
 		"edge_width": 2.0,
 		"fill_darken": 0.62,
@@ -51,6 +53,7 @@
 		"wall": 6
 	},
 	"combat": {
+		"muzzle_min_aim_px": 24.0,
 		"armor_k": 100.0,
 		"min_cooldown_mult": 0.4,
 		"knockback_decay": 900.0,
@@ -75,7 +78,9 @@
 		"contact_cooldown_sec": 0.5,
 		"flash_sec": 0.1,
 		"hurt_shake": 6.0,
-		"hurt_shake_sec": 0.15
+		"hurt_shake_sec": 0.15,
+		"melee_swing_deg": 70.0,
+		"melee_swing_sec": 0.16
 	},
 	"run": {
 		"draft_picks": 2,
@@ -105,6 +110,8 @@
 	},
 	"camera": {
 		"follow_rate": 12.0,
+		"edge_margin_px": 192.0,
+		"backdrop_parallax": 0.35,
 		"aim_lead": 0.32,
 		"aim_max_px": 300.0,
 		"aim_idle_sec": 0.7,
@@ -122,6 +129,11 @@
 		"crit_font": 26,
 		"beam_width": 4.0,
 		"beam_sec": 0.16,
+		"lightning_sec": 0.32,
+		"lightning_width": 28.0,
+		"lightning_flicker_sec": 0.05,
+		"lightning_step_px": 36.0,
+		"lightning_jag_px": 14.0,
 		"ring_sec": 0.35,
 		"ring_width": 3.0,
 		"telegraph_alpha": 0.45,

@@ -27,11 +27,13 @@ func _input(event: InputEvent) -> void:
 		_last_aim_msec = Time.get_ticks_msec()
 
 
+## Location bounds plus camera.edge_margin_px, so the backdrop shows past the outer walls.
 func set_bounds(bounds: Rect2) -> void:
-	limit_left = int(bounds.position.x)
-	limit_top = int(bounds.position.y)
-	limit_right = int(bounds.end.x)
-	limit_bottom = int(bounds.end.y)
+	var margin: float = Db.cfg_f("camera.edge_margin_px")
+	limit_left = int(bounds.position.x - margin)
+	limit_top = int(bounds.position.y - margin)
+	limit_right = int(bounds.end.x + margin)
+	limit_bottom = int(bounds.end.y + margin)
 
 
 func snap_to_target() -> void:

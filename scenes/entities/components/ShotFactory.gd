@@ -131,4 +131,4 @@ static func chain(world: World2D, origin: Vector2, first: Node2D, base_damage: f
 		current.call("receive_hit", player_hit(base_damage, extra))
 		current = nearest_enemy(world, at, jump_range, hit)
 	if points.size() > 1:
-		Signals.beam_fx_requested.emit(points, Db.glow(color), Db.cfg_f("fx.beam_width"), Db.cfg_f("fx.beam_sec"))
+		Signals.lightning_fx_requested.emit(points, Db.glow(color), Db.cfg_f("fx.lightning_sec"))

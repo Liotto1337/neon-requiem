@@ -1,8 +1,10 @@
 extends RefCounted
-## Code-drawn sprite sheets (tools/art/build_art.py) described by data/sprites.json:
-## texture, frame size, pivot and clips. Builds and caches SpriteFrames per sprite id and
-## makes AnimatedSprite2D nodes whose pivot sits on the parent's origin. Icons live in
-## res://assets/icons/<kind>/<id>.png. All sprites share the SpriteFx shader material.
+## Code-drawn 16-px sprite sheets (tools/art/build_art.py) described by data/sprites.json:
+## texture, frame size, pivot, clips and (weapons) the muzzle point. Builds and caches
+## SpriteFrames per sprite id and makes AnimatedSprite2D nodes scaled by art.pixel_scale whose
+## pivot sits on the parent's origin. Directional sheets name clips "<clip>_side/_down/_up";
+## side faces right and is mirrored for the left. Icons live in res://assets/icons/<kind>/.
+## All sprites share the SpriteFx shader material.
 
 const Db = preload("res://core/Db.gd")
 const TABLE: String = "sprites"
@@ -26,6 +28,38 @@ static func entry(sprite_id: String) -> Dictionary:
 static func frame_size(sprite_id: String) -> Vector2:
 	var size: Array = Db.a(entry(sprite_id), "frame")
 	return Vector2(Db.num(size[0]), Db.num(size[1])) if size.size() == 2 else Vector2.ZERO
+
+
+## Frame size in world pixels (texels x art.pixel_scale).
+static func world_size(sprite_id: String) -> Vector2:
+	return frame_size(sprite_id) * scale()
+
+
+static func scale() -> float:
+	return maxf(1.0, Db.cfg_f("art.pixel_scale"))
+
+
+## "side" (mirror when x < 0), "down" or "up" for a direction; vertical wins only when clearly
+## steeper than horizontal (art.facing_vertical_bias).
+static func facing(direction: Vector2) -> String:
+	if absf(direction.y) > absf(direction.x) * Db.cfg_f("art.facing_vertical_bias"):
+		return "down" if direction.y > 0.0 else "up"
+	return "side"
+
+
+## "<base>_<facing>" when the sheet has it, else "<base>".
+static func clip_for(sprite: AnimatedSprite2D, base: String, facing_name: String) -> StringName:
+	var directional: StringName = StringName("%s_%s" % [base, facing_name])
+	return directional if sprite.sprite_frames.has_animation(directional) else StringName(base)
+
+
+## A texel point of the sheet (e.g. "muzzle") relative to the pivot, in local world pixels.
+static func point(sprite_id: String, key: String) -> Vector2:
+	var p: Array = Db.a(entry(sprite_id), key)
+	var pivot: Array = Db.a(entry(sprite_id), "pivot")
+	if p.size() != 2 or pivot.size() != 2:
+		return Vector2.ZERO
+	return (Vector2(Db.num(p[0]), Db.num(p[1])) - Vector2(Db.num(pivot[0]), Db.num(pivot[1]))) * scale()
 
 
 static func frames(sprite_id: String) -> SpriteFrames:
@@ -66,6 +100,7 @@ static func make(sprite_id: String, clip: String = "") -> AnimatedSprite2D:
 	sprite.name = "Body"
 	sprite.sprite_frames = frames(sprite_id)
 	sprite.centered = false
+	sprite.scale = Vector2.ONE * scale()
 	var pivot: Array = Db.a(entry(sprite_id), "pivot")
 	if pivot.size() == 2:
 		sprite.offset = -Vector2(Db.num(pivot[0]), Db.num(pivot[1]))
@@ -98,6 +133,16 @@ static func outline_material(colors: Array, mode: int, energy: float) -> ShaderM
 	material.set_shader_parameter("color_b", colors[1] if colors.size() > 1 else (colors[0] if not colors.is_empty() else Color.WHITE))
 	material.set_shader_parameter("outline_energy", energy)
 	return material
+
+
+## One frame of a clip as a standalone texture (Line2D tiling cannot repeat an atlas region).
+static func frame_texture(sprite_id: String, clip_name: String, index: int) -> Texture2D:
+	var key: String = "%s:%s:%d" % [sprite_id, clip_name, index]
+	if not _icons.has(key):
+		var built: SpriteFrames = frames(sprite_id)
+		var atlas: AtlasTexture = built.get_frame_texture(clip_name, index) as AtlasTexture if built.has_animation(clip_name) else null
+		_icons[key] = ImageTexture.create_from_image(atlas.atlas.get_image().get_region(Rect2i(atlas.region))) if atlas != null else null
+	return _icons[key]
 
 
 static func icon(kind: String, icon_id: String) -> Texture2D:

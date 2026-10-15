@@ -84,7 +84,7 @@ func show_option(option: Dictionary) -> void:
 ## Compact cards (inventory) show title and tag; the description moves to the tooltip.
 func set_compact(compact: bool) -> void:
 	_desc.visible = not compact
-	_icon.custom_minimum_size = Vector2(40, 40) if compact else Vector2(64, 64)
+	_icon.custom_minimum_size = Vector2(48, 48) if compact else Vector2(64, 64)
 	tooltip_text = _desc.text if compact else ""
 
 

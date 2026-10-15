@@ -59,6 +59,17 @@ func _origin() -> Vector2:
 	return _player.global_position
 
 
+## The barrel / blade tip / staff orb of the held weapon.
+func _muzzle() -> Vector2:
+	return _player.call("muzzle_position")
+
+
+## Direction from the muzzle to the aim (falls back to the body direction up close).
+func _muzzle_dir(aim: Vector2) -> Vector2:
+	var direction: Vector2 = aim - _muzzle()
+	return direction.normalized() if direction.length() > Db.cfg_f("combat.muzzle_min_aim_px") else _aim_dir(aim)
+
+
 func _aim_dir(aim: Vector2) -> Vector2:
 	var direction: Vector2 = aim - _origin()
 	return direction.normalized() if direction.length_squared() > 0.0 else Vector2.RIGHT
@@ -90,8 +101,8 @@ func _fire_bolt(aim: Vector2) -> bool:
 		return false
 	_ammo -= 1
 	var spread: float = deg_to_rad(Db.f(_attack, "spread_deg"))
-	var direction: Vector2 = _aim_dir(aim).rotated(GameState.rng.randf_range(-spread, spread))
-	Signals.projectile_requested.emit(ShotFactory.player_shot(_origin(), direction, Db.f(_attack, "damage"), _shot_params(_attack)))
+	var direction: Vector2 = _muzzle_dir(aim).rotated(GameState.rng.randf_range(-spread, spread))
+	Signals.projectile_requested.emit(ShotFactory.player_shot(_muzzle(), direction, Db.f(_attack, "damage"), _shot_params(_attack)))
 	if _ammo <= 0:
 		_start_reload()
 	emit_state()
@@ -118,7 +129,7 @@ func _slash(aim: Vector2) -> void:
 
 
 func _pulse(aim: Vector2) -> void:
-	Signals.projectile_requested.emit(ShotFactory.player_shot(_origin(), _aim_dir(aim), Db.f(_attack, "damage"), _shot_params(_attack)))
+	Signals.projectile_requested.emit(ShotFactory.player_shot(_muzzle(), _muzzle_dir(aim), Db.f(_attack, "damage"), _shot_params(_attack)))
 	Signals.drones_command.emit("focus", {"position": aim, "duration": Db.f(_attack, "focus_sec")})
 
 
@@ -151,7 +162,7 @@ func _rail(aim: Vector2) -> bool:
 		return false
 	_ammo -= cost
 	var damage: float = Db.f(_attack, "damage") * Db.f(_empowered, "damage_mult", 1.0)
-	Signals.projectile_requested.emit(ShotFactory.player_shot(_origin(), _aim_dir(aim), damage, _shot_params(_empowered)))
+	Signals.projectile_requested.emit(ShotFactory.player_shot(_muzzle(), _muzzle_dir(aim), damage, _shot_params(_empowered)))
 	Signals.screen_shake_requested.emit(Db.cfg_f("player.hurt_shake") * 0.5, Db.cfg_f("player.hurt_shake_sec"))
 	if _ammo <= 0:
 		_start_reload()

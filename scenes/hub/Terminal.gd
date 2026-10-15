@@ -19,7 +19,8 @@ func setup(terminal: Dictionary) -> void:
 	data = terminal
 	_sprite = Sprites.attach(self, Db.s(terminal, "sprite"), "move", 0.0)
 	var size: Vector2 = Sprites.frame_size(Db.s(terminal, "sprite"))
-	_sprite.offset = -Vector2(size.x * 0.5, size.y - 8.0)
+	_sprite.offset = -Vector2(size.x * 0.5, size.y - 2.0)
+	size *= Sprites.scale()
 	_add_base()
 	_plate = Label.new()
 	_plate.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

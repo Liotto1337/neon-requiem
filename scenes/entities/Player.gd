@@ -10,8 +10,8 @@ const MSEC: float = 1000.0
 const FLASH_ENERGY: float = 3.0
 const IFRAME_ALPHA: float = 0.55
 const SHADOW_ALPHA: float = 0.5
-const SHADOW_SCALE: float = 1.4
-const SHADOW_DROP: float = 22.0
+const SHADOW_SCALE: float = 0.9
+const SHADOW_DROP: float = 20.0
 
 var hero: Dictionary = {}
 var aim_position: Vector2 = Vector2.ZERO
@@ -30,6 +30,7 @@ var _last_level: int = 0
 @onready var _caster: Node = $Caster
 @onready var orbit_root: Node2D = $Orbit
 @onready var animator: Node = $Animator
+@onready var weapon: Node2D = $Weapon
 @onready var _reload_bar: Node2D = $ReloadBar
 
 
@@ -37,6 +38,8 @@ func setup(hero_id: String) -> void:
 	hero = Db.entry("heroes", "heroes", hero_id)
 	_add_shadow()
 	animator.call("setup", self, _visual, Db.s(hero, "id"))
+	var sheet: Dictionary = Sprites.entry("heroes/" + Db.s(hero, "id"))
+	weapon.call("setup", self, Db.s(sheet, "weapon"), Db.d(sheet, "hands"))
 	_reload_bar.set("color", Db.glow(Db.s(hero, "color", "cyan")))
 	_reload_bar.position = Vector2(0.0, -Db.cfg_f("ui.reload_bar_offset"))
 	_reload_bar.visible = false
@@ -50,18 +53,42 @@ func setup(hero_id: String) -> void:
 func _add_shadow() -> void:
 	var shadow: AnimatedSprite2D = Sprites.make("fx/shadow")
 	shadow.name = "Shadow"
-	shadow.scale = Vector2.ONE * SHADOW_SCALE
+	shadow.scale *= SHADOW_SCALE
 	shadow.position = Vector2(0.0, SHADOW_DROP)
 	shadow.modulate.a = SHADOW_ALPHA
 	_visual.add_child(shadow)
 
 
-## Sprite + reload bar feedback. kind: attack | cast | levelup | hurt | reload.
+## Sprite, weapon and reload bar feedback. kind: attack | cast | levelup | hurt | reload.
 ## anim_sec stretches the reload clip (0 = native); bar_sec > 0 shows the reload bar.
 func animate(kind: String, anim_sec: float = 0.0, bar_sec: float = 0.0) -> void:
 	animator.call("play", kind, anim_sec)
+	_animate_weapon(kind, anim_sec)
 	if bar_sec > 0.0:
 		_reload_bar.call("start", bar_sec)
+
+
+## Weapon clip per class: rifle fires / reloads, blades slash (with a swing) / parry, the
+## staff flares for everything it does.
+func _animate_weapon(kind: String, anim_sec: float) -> void:
+	var melee: bool = hero_class() == "melee"
+	var ranged: bool = hero_class() == "ranged"
+	match kind:
+		"attack":
+			weapon.call("play", "fire" if ranged else ("slash" if melee else "cast"))
+			if melee:
+				weapon.call("swing", Db.cfg_f("player.melee_swing_deg"), Db.cfg_f("player.melee_swing_sec"))
+		"reload":
+			weapon.call("play", "reload" if ranged else ("parry" if melee else "cast"))
+			if ranged and anim_sec > 0.0:
+				get_tree().create_timer(anim_sec, false).timeout.connect(func() -> void: weapon.call("play", "idle"))
+		"cast":
+			weapon.call("play", "cast")
+
+
+## Where this hero's shots leave: the barrel, blade tip or staff orb.
+func muzzle_position() -> Vector2:
+	return weapon.call("muzzle_global")
 
 
 func _on_resources(resources: Dictionary) -> void:

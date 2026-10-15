@@ -47,6 +47,8 @@ func _run() -> void:
 	await _frames(20)
 	await _shot("02_start")
 	await _reload_run()
+	await _aim_poses()
+	await _lightning()
 	if OS.get_environment("SHOT_QUICK") != "":
 		get_tree().quit()
 		return
@@ -93,6 +95,41 @@ func _hud_and_reload() -> void:
 	await get_tree().create_timer(0.35).timeout
 	await _shot("07_reload")
 	Input.action_release("move_wasd_left")
+
+
+## The weapon turns to the cursor in every facing; a shot leaves the muzzle.
+func _aim_poses() -> void:
+	var player: Node2D = _node("World/Player")
+	while _node("World/Player/Attack").get("_reloading"):
+		await _frames(1)
+	for pose: Array in [["02d_aim_up", Vector2(40.0, -300.0)], ["02e_aim_down", Vector2(-60.0, 300.0)], ["02f_aim_left", Vector2(-300.0, -40.0)]]:
+		get_viewport().warp_mouse(player.get_global_transform_with_canvas().origin + (pose[1] as Vector2))
+		await _frames(4)
+		Input.action_press("attack_lmb")
+		await _frames(2)
+		await _shot(pose[0])
+		Input.action_release("attack_lmb")
+		await get_tree().create_timer(0.3).timeout
+
+
+## Chain lightning (Vector's second ability) into the crowd.
+func _lightning() -> void:
+	var player: Node2D = _node("World/Player")
+	var first: Dictionary = Db.list("enemies", "enemies")[0]
+	for index: int in 5:
+		var offset: Vector2 = Vector2(180.0 + 70.0 * float(index), -120.0 + 60.0 * float(index % 3))
+		_node("Spawner").call("spawn_enemy", first, player.global_position + offset, [])
+	GameState.restore_mana(999.0)
+	get_viewport().warp_mouse(player.get_global_transform_with_canvas().origin + Vector2(180.0, -120.0))
+	await _frames(2)
+	# Frames under xvfb are slow; slow time down so the 0.3 s bolt is still on screen.
+	Engine.time_scale = 0.05
+	_node("World/Player/Caster").call("cast_ability", 1, player.global_position + Vector2(180.0, -120.0))
+	await _frames(2)
+	await _shot("02g_lightning")
+	await _frames(3)
+	await _shot("02h_lightning")
+	Engine.time_scale = 1.0
 
 
 func _finish_draft() -> void:

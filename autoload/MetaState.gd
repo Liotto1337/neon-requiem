@@ -33,7 +33,7 @@ func _ready() -> void:
 
 func new_profile() -> void:
 	currency = Db.cfg_i("meta.start_currency")
-	unlocked_heroes.assign([Db.cfg_s("meta.starting_hero")])
+	unlocked_heroes.assign(free_heroes())
 	meta_tree_nodes = {}
 	starting_item_tiers = {}
 	for hero: Variant in Db.list("heroes", "heroes"):
@@ -61,6 +61,15 @@ func snapshot() -> Dictionary:
 		"selected_hero": selected_hero,
 		"has_run_save": SaveManager.has_run_save(),
 	}
+
+
+## Heroes with unlock_cost 0 (all three starting heroes) are always open, also in old saves.
+func free_heroes() -> Array[String]:
+	var out: Array[String] = [Db.cfg_s("meta.starting_hero")]
+	for hero: Variant in Db.list("heroes", "heroes"):
+		if Db.i(hero, "unlock_cost") <= 0 and not out.has(Db.s(hero, "id")):
+			out.append(Db.s(hero, "id"))
+	return out
 
 
 func is_unlocked(hero_id: String) -> bool:
@@ -214,8 +223,10 @@ func from_save_dict(data: Dictionary) -> void:
 	for id: Variant in Db.a(data, "unlocked_heroes"):
 		if not Db.entry("heroes", "heroes", str(id)).is_empty() and not heroes.has(str(id)):
 			heroes.append(str(id))
-	if not heroes.is_empty():
-		unlocked_heroes = heroes
+	for id: String in free_heroes():
+		if not heroes.has(id):
+			heroes.append(id)
+	unlocked_heroes = heroes
 	for node_id: Variant in Db.d(data, "meta_tree_nodes").keys():
 		meta_tree_nodes[str(node_id)] = Db.i(Db.d(data, "meta_tree_nodes"), str(node_id))
 	for hero_id: Variant in Db.d(data, "starting_item_tiers").keys():

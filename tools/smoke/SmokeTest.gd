@@ -95,7 +95,7 @@ func _test_hub_boot() -> void:
 	_check("skill tree terminal opens the graph", str(_scene().call("open_overlay")) == "tree")
 	_scene().call("_close_overlays")
 	_check("fresh meta currency", MetaState.currency == Db.cfg_i("meta.start_currency"), str(MetaState.currency))
-	_check("one hero unlocked at start", MetaState.unlocked_heroes.size() == 1)
+	_check("all three starting heroes are free", MetaState.unlocked_heroes.size() == 3)
 
 
 # ---------------------------------------------------------------- 2. run start
@@ -168,17 +168,29 @@ func _test_visuals() -> void:
 	var player: Node2D = _node("World/Player")
 	var sprite: AnimatedSprite2D = player.get_node("Animator").get("sprite")
 	var clips: PackedStringArray = sprite.sprite_frames.get_animation_names() if sprite != null else PackedStringArray()
-	var wanted: Array[String] = ["idle", "run", "reload", "reload_run", "attack", "hurt", "levelup", "cast"]
-	_check("hero sprite has 8 animations", wanted.all(func(clip: String) -> bool: return clips.has(clip)), ", ".join(clips))
+	var wanted: Array[String] = []
+	for clip: String in ["idle", "run", "reload", "reload_run", "attack", "hurt", "levelup", "cast"]:
+		for facing: String in ["side", "down", "up"]:
+			wanted.append("%s_%s" % [clip, facing])
+	_check("hero sprite has 8 animations x side/down/up", wanted.all(func(clip: String) -> bool: return clips.has(clip)), "%d clips" % clips.size())
+	var weapon: Node2D = player.get_node("Weapon")
+	_check("hero holds a separate weapon sprite", weapon.get("sprite") != null and str(weapon.get("weapon_id")) == "weapons/rifle")
+	var muzzle: Vector2 = player.call("muzzle_position")
+	_check("muzzle is off the body centre (shots leave the gun)", muzzle.distance_to(player.global_position) > 30.0, str(muzzle - player.global_position))
 	await _seconds(1.0)
 	player.call("animate", "attack")
 	await _frames(1)
-	_check("attack plays the attack clip", sprite.animation == &"attack", str(sprite.animation))
+	_check("attack plays the attack clip", String(sprite.animation).begins_with("attack"), str(sprite.animation))
 	await _seconds(0.4)
 	player.call("animate", "reload", 1.0, 1.0)
 	await _frames(2)
 	_check("reload bar shows during R", bool(player.get_node("ReloadBar").visible))
-	_check("reload clip while standing", sprite.animation == &"reload")
+	_check("reload clip while standing", String(sprite.animation).begins_with("reload"), str(sprite.animation))
+	var walls: TileMapLayer = _node("World/LocationSlot").get_child(0).get_node("Walls")
+	var cell: Vector2i = walls.get_used_cells()[0]
+	_check("walls are oblique blocks (2x2 atlas tiles) with floor shadows", (walls.tile_set.get_source(0) as TileSetAtlasSource).get_tile_size_in_atlas(walls.get_cell_atlas_coords(cell)) == Vector2i(2, 2) and _node("World/LocationSlot").get_child(0).get_node("Shadows").get_used_cells().size() > 0)
+	var pulse_peak: float = _flavor_peak()
+	_check("location light pulses stay below the hit-flash threshold", pulse_peak <= 1.0, "peak %.2f" % pulse_peak)
 	_check("enemy sprites come from the sheet manifest", Sprites.has("enemies/grunt") and Sprites.has("enemies/requiem"))
 	var camera: Node = _node("Camera")
 	var motion: InputEventMouseMotion = InputEventMouseMotion.new()
@@ -192,6 +204,22 @@ func _test_visuals() -> void:
 	_check("camera recentres while a modal pauses the run", not bool(camera.call("aiming")))
 	get_tree().paused = false
 	_check("HUD difficulty strip starts at ТИШИНА", str(_node("UI/HUD/RunInfo/Difficulty").call("current_name")) == "ТИШИНА")
+
+
+## Highest tile-layer modulate channel the pulsing locations reach over a few seconds
+## (SpriteFx treats modulate above 1 as the white hit flash).
+func _flavor_peak() -> float:
+	var peak: float = 0.0
+	for location_id: String in ["neon_slums", "data_core", "chrome_gardens"]:
+		var location: Node = (load(Db.s(Db.entry("locations", "locations", location_id), "scene")) as PackedScene).instantiate()
+		add_child(location)
+		for step: int in 60:
+			location.call("_tick_flavor", step * 97, 0.016)
+			for layer_name: String in ["Floor", "Walls", "Decor"]:
+				var tint: Color = (location.get_node(layer_name) as CanvasItem).modulate
+				peak = maxf(peak, maxf(tint.r, maxf(tint.g, tint.b)))
+		location.free()
+	return peak
 
 
 # ---------------------------------------------------------------- 5. level-up / ultimate

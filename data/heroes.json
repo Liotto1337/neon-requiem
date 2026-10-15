@@ -65,7 +65,7 @@
 			"color": "magenta",
 			"shape": "triangle",
 			"size": 32,
-			"unlock_cost": 400,
+			"unlock_cost": 0,
 			"stats": {
 				"hp_max": 100,
 				"mana_max": 100,
@@ -122,7 +122,7 @@
 			"color": "lime",
 			"shape": "hex",
 			"size": 32,
-			"unlock_cost": 600,
+			"unlock_cost": 0,
 			"stats": {
 				"hp_max": 100,
 				"mana_max": 100,

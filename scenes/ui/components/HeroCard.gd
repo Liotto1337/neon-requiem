@@ -7,7 +7,7 @@ const Db = preload("res://core/Db.gd")
 const Sprites = preload("res://core/Sprites.gd")
 const PORTRAIT_SCALE: float = 2.0
 const PORTRAIT_HEIGHT: float = 210.0
-const ICON_SIZE: float = 44.0
+const ICON_SIZE: float = 48.0
 
 var hero_id: String = ""
 var _sprite: AnimatedSprite2D = null
@@ -55,7 +55,7 @@ func _build_sprite(unlocked: bool) -> void:
 	if _sprite != null:
 		_sprite.free()
 	_sprite = Sprites.make("heroes/" + hero_id, "idle")
-	_sprite.scale = Vector2.ONE * PORTRAIT_SCALE
+	_sprite.scale *= PORTRAIT_SCALE
 	_sprite.modulate = Color.WHITE if unlocked else Color(0.25, 0.22, 0.32)
 	_portrait.add_child(_sprite)
 	_place_sprite()

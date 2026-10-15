@@ -2,7 +2,7 @@ extends "res://scenes/hub/HubOverlay.gd"
 ## Workshop: upgrades the selected hero's signature starting item (tiers 1..5, power x1.0 ..
 ## x2.0, prices in data/items.json "signature_upgrade_costs").
 
-const ICON_SIZE: float = 160.0
+const ICON_SIZE: float = 128.0
 
 var _icon: TextureRect = null
 var _name: Label = null

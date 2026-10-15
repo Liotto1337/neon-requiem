@@ -158,7 +158,7 @@ func _fire_spread(attack: Dictionary) -> void:
 
 
 func _emit_bullet(attack: Dictionary, angle: float) -> void:
-	Signals.projectile_requested.emit(ShotFactory.enemy_shot(global_position, Vector2.RIGHT.rotated(angle), attack, shot_damage_mult(TimeService.run_msec()), hit_extras()))
+	Signals.projectile_requested.emit(ShotFactory.enemy_shot(muzzle_point(Vector2.RIGHT.rotated(angle)), Vector2.RIGHT.rotated(angle), attack, shot_damage_mult(TimeService.run_msec()), hit_extras()))
 
 
 func _start_laser(attack: Dictionary, now: int) -> void:

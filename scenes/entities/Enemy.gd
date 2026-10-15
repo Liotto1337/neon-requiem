@@ -6,6 +6,8 @@ extends CharacterBody2D
 const Db = preload("res://core/Db.gd")
 const Sprites = preload("res://core/Sprites.gd")
 const ShotFactory = preload("res://scenes/entities/components/ShotFactory.gd")
+const WEAPON_SCRIPT: Script = preload("res://scenes/entities/components/WeaponHolder.gd")
+const MUZZLE_EDGE: float = 0.38
 const MSEC: float = 1000.0
 const PERCENT: float = 100.0
 const BODY_RADIUS_RATIO: float = 0.4
@@ -58,6 +60,9 @@ var _flash_until_msec: int = 0
 var _strafe_sign: float = 1.0
 var _dead: bool = false
 var body: AnimatedSprite2D = null
+var aim_position: Vector2 = Vector2.ZERO
+var weapon: Node2D = null
+var _facing: String = "down"
 
 @onready var _collision: CollisionShape2D = $Collision
 @onready var _visual: Node2D = $Visual
@@ -81,8 +86,14 @@ func _ready() -> void:
 	var shape: CircleShape2D = CircleShape2D.new()
 	shape.radius = size_px * BODY_RADIUS_RATIO
 	_collision.shape = shape
-	body = Sprites.attach(_visual, sprite_id(), "move", float(get_instance_id() % 97) / 97.0)
+	body = Sprites.attach(_visual, sprite_id(), "move_down", float(get_instance_id() % 97) / 97.0)
 	_add_shadow()
+	if Db.s(cfg, "weapon") != "":
+		weapon = Node2D.new()
+		weapon.name = "Weapon"
+		weapon.set_script(WEAPON_SCRIPT)
+		add_child(weapon)
+		weapon.call("setup", self, Db.s(cfg, "weapon"), {})
 	var cooldown: float = Db.f(Db.d(cfg, "shot"), "cooldown")
 	_next_shot_msec = TimeService.run_msec() + int(cooldown * MSEC * GameState.rng.randf())
 	_strafe_sign = 1.0 if GameState.rng.randf() < 0.5 else -1.0
@@ -96,10 +107,10 @@ func sprite_id() -> String:
 func _add_shadow() -> void:
 	var shadow: AnimatedSprite2D = Sprites.make("fx/shadow")
 	shadow.name = "Shadow"
-	var width: float = Sprites.frame_size("fx/shadow").x
-	var art_width: float = maxf(size_px, Sprites.frame_size(sprite_id()).x * 0.5)
-	shadow.scale = Vector2.ONE * (art_width * SHADOW_WIDTH_RATIO / maxf(1.0, width))
-	shadow.position = Vector2(0.0, Sprites.frame_size(sprite_id()).y * SHADOW_DROP_RATIO)
+	var width: float = Sprites.world_size("fx/shadow").x
+	var art_width: float = maxf(size_px, Sprites.world_size(sprite_id()).x * 0.6)
+	shadow.scale *= art_width * SHADOW_WIDTH_RATIO / maxf(1.0, width)
+	shadow.position = Vector2(0.0, Sprites.world_size(sprite_id()).y * SHADOW_DROP_RATIO)
 	shadow.modulate.a = SHADOW_ALPHA
 	shadow.z_index = -1
 	_visual.add_child(shadow)
@@ -126,8 +137,32 @@ func _physics_process(delta: float) -> void:
 	_pull = _pull.lerp(Vector2.ZERO, clampf(Db.cfg_f("combat.pull_decay") * delta, 0.0, 1.0))
 	var flash: bool = now < _flash_until_msec
 	body.modulate = Color(FLASH_ENERGY, FLASH_ENERGY, FLASH_ENERGY) if flash else Color.WHITE
-	if absf(velocity.x) > FACING_DEADZONE:
-		body.flip_h = velocity.x < 0.0
+	aim_position = target.global_position
+	_update_facing()
+
+
+## Side / down / up move clip from the movement (or, standing, from the direction to the
+## target); the side clip is mirrored for the left. Keeps the frame across facings.
+func _update_facing() -> void:
+	var direction: Vector2 = velocity if velocity.length() > FACING_DEADZONE else aim_position - global_position
+	var facing: String = Sprites.facing(direction)
+	body.flip_h = facing == "side" and direction.x < 0.0
+	if facing == _facing:
+		return
+	_facing = facing
+	var clip: StringName = Sprites.clip_for(body, "move", facing)
+	if body.sprite_frames.has_animation(clip) and body.animation != clip:
+		var keep: int = body.frame
+		body.play(clip)
+		body.frame = mini(keep, body.sprite_frames.get_frame_count(clip) - 1)
+
+
+## Where a shot towards `direction` leaves: the held weapon's muzzle, else the body edge.
+func muzzle_point(direction: Vector2) -> Vector2:
+	if weapon != null:
+		weapon.call("play", "fire")
+		return weapon.call("muzzle_global")
+	return global_position + direction.normalized() * Sprites.world_size(sprite_id()).x * MUZZLE_EDGE
 
 
 ## Movement direction for this frame (length 1 = base speed). Also fires shots.
@@ -227,7 +262,7 @@ func _try_shoot(now: int, base_angle: float, ring: bool) -> bool:
 			angle += TAU * float(index) / float(count)
 		elif count > 1:
 			angle += lerpf(-spread * 0.5, spread * 0.5, float(index) / float(count - 1))
-		Signals.projectile_requested.emit(ShotFactory.enemy_shot(global_position, Vector2.RIGHT.rotated(angle), shot, shot_damage_mult(now), hit_extras()))
+		Signals.projectile_requested.emit(ShotFactory.enemy_shot(muzzle_point(Vector2.RIGHT.rotated(angle)), Vector2.RIGHT.rotated(angle), shot, shot_damage_mult(now), hit_extras()))
 	return true
 
 
@@ -297,7 +332,7 @@ func _update_hp_bar() -> void:
 	if not _hp_bar.visible:
 		return
 	var width: float = Db.f(Db.d(Db.table("elites"), "base"), "hp_bar_width")
-	var y: float = -maxf(size_px * HP_BAR_OFFSET, Sprites.frame_size(sprite_id()).y * 0.5 - 4.0)
+	var y: float = -maxf(size_px * HP_BAR_OFFSET, Sprites.world_size(sprite_id()).y * 0.5 - 4.0)
 	var fraction: float = clampf(hp / maxf(1.0, hp_max), 0.0, 1.0)
 	_hp_bar.points = PackedVector2Array([Vector2(-width * 0.5, y), Vector2(-width * 0.5 + width * fraction, y)])
 	_hp_bar.default_color = Db.glow("blue" if shield > 0.0 else "red")

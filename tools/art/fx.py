@@ -1,186 +1,190 @@
-"""Projectiles (near-white, tinted in game by the shot colour), pickups, powerups, the drop
-shadow and the mouse cursor. Projectiles face right (+x); the game rotates them."""
+"""Projectiles (near-white, tinted in game by the shot colour), the animated lightning strip,
+pickups, powerups, the drop shadow and the cursor — all at 16-px scale (shown x4).
+Projectiles face right (+x); the game rotates them."""
 from __future__ import annotations
 
 import math
 
 import numpy as np
 
-from palette import BRASS, CHROME, GLOW, GUNMETAL, NEON, OUTLINE, STEEL
-from pixlib import Canvas, mix
+from palette import BRASS, CHROME, GLOW, GUNMETAL, NEON, OUTLINE
+from pixlib import Canvas, hex_rgb, mix
 
-WHITE = ["#3a3a48", "#7a7a8e", "#c4c4d4", "#ececff", "#ffffff"]
+WHITE = ["#4a4a5a", "#8a8a9e", "#c8c8dc", "#ffffff"]
 TAU = math.tau
 
 
-def bolt(c: Canvas, f: int, n: int) -> None:
-    h = c.h / 2
-    c.paint(c.capsule(3, h, c.w - 6, h, 1.0, 3.5), WHITE, style="cylinder", dither=0.2)
-    c.flat(c.capsule(c.w - 14, h, c.w - 6, h, 0.6, 1.6), "#ffffff")
+def px(c: Canvas, pts, color: str) -> None:
+    for x, y in pts:
+        x, y = int(round(x)), int(round(y))
+        if 0 <= x < c.w and 0 <= y < c.h:
+            c.rgb[y, x] = hex_rgb(color)
+            c.alpha[y, x] = True
 
 
-def lance(c: Canvas, f: int, n: int) -> None:
-    h = c.h / 2
-    c.paint(c.capsule(4, h, c.w - 14, h, 1.0, 5), WHITE, style="cylinder", dither=0.2)
-    c.paint(c.poly([(c.w - 16, h - 6), (c.w - 2, h), (c.w - 16, h + 6)]), WHITE, style="bevel")
-    c.flat(c.line(10, h, c.w - 6, h, 1.5), "#ffffff")
+def bolt(c, f, n):
+    px(c, [(1, 1), (2, 1)], WHITE[1]); px(c, [(3 + k, 1) for k in range(4)], WHITE[3])
+    px(c, [(2 + k, 0) for k in range(3)] + [(2 + k, 2) for k in range(3)], WHITE[2])
 
 
-def orb(c: Canvas, f: int, n: int) -> None:
-    s = c.w / 2
-    c.paint(c.circle(s, s, s - 2), WHITE[1:], style="dome", dither=0.2)
-    c.flat(c.circle(s - 1, s - 1, (s - 2) * 0.45), "#ffffff")
+def lance(c, f, n):
+    px(c, [(k, 2) for k in range(1, 9)], WHITE[3])
+    px(c, [(k, 1) for k in range(2, 8)] + [(k, 3) for k in range(2, 8)], WHITE[2])
+    px(c, [(9, 2), (10, 2), (9, 1), (9, 3)], WHITE[3])
+    px(c, [(0, 2)], WHITE[1])
 
 
-def pellet(c: Canvas, f: int, n: int) -> None:
-    s = c.w / 2
-    c.paint(c.circle(s, s, s - 2), WHITE[2:], style="dome", dither=0.0)
+def orb(c, f, n):
+    c.paint(c.circle(2.5, 2.5, 2.4), WHITE[1:], style="dome", dither=0.0)
+    px(c, [(1, 1)], "#ffffff")
 
 
-def needle(c: Canvas, f: int, n: int) -> None:
-    h = c.h / 2
-    c.paint(c.poly([(2, h), (c.w * 0.4, h - 2.5), (c.w - 2, h), (c.w * 0.4, h + 2.5)]), WHITE[1:], style="bevel")
-    c.flat(c.line(6, h, c.w - 4, h, 1), "#ffffff")
+def pellet(c, f, n):
+    px(c, [(1, 0), (0, 1), (1, 1), (2, 1), (1, 2)], WHITE[3])
 
 
-def rocket(c: Canvas, f: int, n: int) -> None:
-    h = c.h / 2
-    flame = 4 + (f % 2) * 3
-    c.paint(c.capsule(2, h, 2 + flame, h, 1, 3), WHITE[2:], style="dome")
-    c.paint(c.rect(8, h - 3.5, c.w - 16, 7, 3), WHITE[:4], style="cylinder", sep=True)
-    c.paint(c.poly([(c.w - 9, h - 3.5), (c.w - 2, h), (c.w - 9, h + 3.5)]), WHITE, style="bevel", sep=True)
-    for side in (-1, 1):
-        c.paint(c.poly([(9, h + side * 3), (14, h + side * 3), (9, h + side * 7)]), WHITE[:4], style="flat")
-    c.outline(OUTLINE)
+def needle(c, f, n):
+    px(c, [(k, 1) for k in range(7)], WHITE[3]); px(c, [(1, 0), (2, 0), (1, 2), (2, 2)], WHITE[1])
 
 
-def blade(c: Canvas, f: int, n: int) -> None:
-    s = c.w / 2
+def rocket(c, f, n):
+    px(c, [(0, 2), (1, 2)] + ([(0, 1), (0, 3)] if f % 2 else []), WHITE[3])
+    px(c, [(2 + k, 2) for k in range(5)] + [(2 + k, 1) for k in range(4)] + [(2 + k, 3) for k in range(4)], WHITE[1])
+    px(c, [(7, 2), (6, 1), (6, 3)], WHITE[2])
+    px(c, [(3, 0), (3, 4)], WHITE[0])
+
+
+def blade(c, f, n):
+    s = 4
     for k in range(4):
-        a = TAU * k / 4 + f / n * TAU / 4
-        tip = (s + math.cos(a) * (s - 2), s + math.sin(a) * (s - 2))
-        side = (s + math.cos(a + 0.9) * 6, s + math.sin(a + 0.9) * 6)
-        c.paint(c.poly([(s, s), side, tip]), WHITE, style="bevel")
-    c.paint(c.circle(s, s, 4), WHITE[:3], style="dome", sep=True)
-    c.outline(OUTLINE)
+        a = TAU * k / 4 + f * TAU / 16
+        px(c, [(s + math.cos(a) * r, s + math.sin(a) * r) for r in (1, 2, 3, 4)], WHITE[3] if k % 2 else WHITE[2])
+    px(c, [(s, s)], WHITE[0])
 
 
-def slash(c: Canvas, f: int, n: int) -> None:
-    """Crescent for melee arcs: radius ~ canvas/2, opening +-60 deg around +x."""
-    s = c.w / 2
-    outer = c.circle(s, s, s - 2)
-    inner = c.circle(s - 10, s, s - 8)
-    cres = outer.minus(inner)
-    ang = np.degrees(np.arctan2(c.Y - s, c.X - s))
-    keep = np.abs(ang) <= 64
-    cres.mask &= keep
-    c.paint(cres, WHITE[1:], style="cylinder", dither=0.3)
-    edge = c.ring(s, s, s - 3, 1.6)
-    edge.mask &= keep
-    c.flat(edge, "#ffffff")
+def slash(c, f, n):
+    """Melee crescent (24 x 24): arc of radius ~11 around the centre, +-60 deg."""
+    s = 12
+    for r, col in ((11, WHITE[3]), (10, WHITE[2]), (9, WHITE[1])):
+        for k in range(-30, 31, 2):
+            a = math.radians(k * 2)
+            px(c, [(s + math.cos(a) * r, s + math.sin(a) * r)], col)
 
 
-def spark_fx(c: Canvas, f: int, n: int) -> None:
-    """Hit spark burst: 4 frames growing and fading."""
-    s = c.w / 2
-    r = 3 + f * 3
+def spark(c, f, n):
+    s = 4
+    r = 1 + f
     for k in range(8):
-        a = TAU * k / 8 + (k % 2) * 0.2
-        length = r * (1.0 if k % 2 == 0 else 0.6)
-        c.flat(c.line(s + math.cos(a) * r * 0.4, s + math.sin(a) * r * 0.4, s + math.cos(a) * length, s + math.sin(a) * length, 1.5 if f < 2 else 1), "#ffffff" if f < 2 else "#c4c4d4")
+        a = TAU * k / 8
+        length = r if k % 2 == 0 else r * 0.6
+        px(c, [(s + math.cos(a) * length, s + math.sin(a) * length)], WHITE[3] if f < 2 else WHITE[1])
     if f < 2:
-        c.flat(c.circle(s, s, 3 - f), "#ffffff")
+        px(c, [(s, s)], "#ffffff")
+
+
+def lightning(c, f, n):
+    """Seamless lightning strip (16 x 7), 4 frames: jagged bright core, dim halo, forks.
+    The game tiles it along a Line2D and swaps frames, so the bolt crackles."""
+    rng = np.random.default_rng(300 + f)
+    ys = [3]
+    for _ in range(15):
+        ys.append(int(min(5, max(1, ys[-1] + rng.integers(-1, 2)))))
+    ys[-1] = 3
+    for x, y in enumerate(ys):
+        px(c, [(x, y - 1), (x, y + 1)], WHITE[1])
+    for x, y in enumerate(ys):
+        px(c, [(x, y)], "#ffffff")
+    fork = int(rng.integers(4, 11))
+    fy = ys[fork]
+    for k in range(1, 4):
+        py = fy + (k if f % 2 else -k)
+        if 0 <= py < c.h:
+            px(c, [(fork + k, py)], WHITE[2])
 
 
 # ---------------------------------------------------------------- pickups
 
-def xp(c: Canvas, f: int, n: int) -> None:
-    s = c.w / 2
-    pts = [(s, 2), (s + 6, s - 1), (s, c.h - 3), (s - 6, s - 1)]
-    c.paint(c.poly(pts), GLOW["lime"][:4] + ["#f0ffd0"], style="bevel")
-    c.flat(c.line(s, 4, s, c.h - 5, 1), mix(NEON["lime"], "#ffffff", 0.3))
+def xp(c, f, n):
+    c.paint(c.poly([(2.5, 0.5), (4.5, 3.5), (2.5, 6.5), (0.5, 3.5)]), GLOW["lime"], style="bevel", dither=0.0)
     if f in (1, 2):
-        c.flat(c.pixels([(int(s - 2 + f), 6 + f * 2)]), "#ffffff")
-    c.outline(OUTLINE)
+        px(c, [(2, 2 + f)], "#ffffff")
 
 
-def currency(c: Canvas, f: int, n: int) -> None:
-    s = c.w / 2
-    wid = [6.5, 4.5, 1.6, 4.5][f % 4]
-    c.paint(c.ellipse(s, s, wid, 6.5), BRASS[1:] + [NEON["amber"]], style="dome", dither=0.2)
-    if wid > 3:
-        c.flat(c.rect(s - 0.5, s - 3.5, 1.5, 7), mix(NEON["amber"], "#ffffff", 0.4))
-    c.outline(OUTLINE)
+def currency(c, f, n):
+    w = [2.5, 1.8, 0.8, 1.8][f % 4]
+    c.paint(c.ellipse(3, 3, w, 2.6), BRASS[1:] + [NEON["amber"]], style="dome", dither=0.0)
+    if w > 1:
+        px(c, [(3, 2), (3, 3)], mix(NEON["amber"], "#ffffff", 0.4))
 
 
-def heal(c: Canvas, f: int, n: int) -> None:
-    s = c.w / 2
-    r = 7.5 + (f % 2) * 0.8
-    c.paint(c.circle(s, s, r), GLOW["magenta"], style="dome", dither=0.3)
-    c.flat(c.rect(s - 1.5, s - 5, 3, 10), "#ffffff")
-    c.flat(c.rect(s - 5, s - 1.5, 10, 3), "#ffffff")
-    c.outline(OUTLINE)
-
-
-def _powerup_base(c: Canvas, f: int, col: str) -> float:
-    s = c.w / 2
-    b = [0, -1, -2, -1][f % 4]
-    c.paint(c.circle(s, s + b, 15), GUNMETAL, style="dome")
-    c.paint(c.ring(s, s + b, 14, 3), GLOW[col][:4], style="cylinder")
-    c.paint(c.circle(s, s + b, 10), ["#0b0714", "#140c22", "#1e1430"], style="flat")
-    return b
+def heal(c, f, n):
+    r = 3.2 + (f % 2) * 0.3
+    c.paint(c.circle(3.5, 3.5, r), GLOW["magenta"], style="dome", dither=0.0)
+    px(c, [(3, 2), (3, 3), (3, 4), (2, 3), (4, 3)], "#ffffff")
 
 
 def powerup(kind: str):
     col = {"power_damage": "magenta", "power_haste": "cyan", "power_magnet": "lime", "power_shield": "blue", "power_heal": "white"}[kind]
 
-    def painter(c: Canvas, f: int, n: int) -> None:
-        s = c.w / 2
-        b = _powerup_base(c, f, col)
-        y = s + b
+    def painter(c, f, n):
+        b = [0, -1, -1, 0][f % 4]
+        c.paint(c.circle(6, 6 + b, 5.4), GUNMETAL, style="dome", dither=0.0)
+        c.flat(c.ring(6, 6 + b, 5, 1), GLOW[col][2] if f % 2 == 0 else GLOW[col][1])
+        y = 6 + b
         if kind == "power_damage":
-            c.paint(c.poly([(s + 2, y - 9), (s - 5, y + 1), (s, y + 1), (s - 2, y + 9), (s + 5, y - 2), (s, y - 2)]), GLOW[col], style="bevel")
+            px(c, [(7, y - 3), (6, y - 2), (5, y - 1), (6, y - 1), (7, y - 1), (6, y), (5, y + 1), (5, y + 2)], NEON[col])
         elif kind == "power_haste":
-            for k in range(3):
-                c.paint(c.poly([(s - 6 + k * 5, y - 7), (s - 1 + k * 5, y), (s - 6 + k * 5, y + 7), (s - 4 + k * 5, y)]), GLOW[col], style="bevel")
+            px(c, [(4, y - 2), (5, y - 1), (6, y), (5, y + 1), (4, y + 2), (7, y - 2), (8, y - 1), (9, y), (8, y + 1), (7, y + 2)], NEON[col])
         elif kind == "power_magnet":
-            c.paint(c.arc(s, y - 1, 6, 4, 0, 180), GLOW[col][1:], style="cylinder")
-            c.paint(c.rect(s - 8, y - 8, 4, 7), GLOW["red"][1:], style="cylinder")
-            c.paint(c.rect(s + 4, y - 8, 4, 7), CHROME[1:], style="cylinder")
+            px(c, [(4, y - 2), (4, y - 1), (4, y), (5, y + 1), (6, y + 1), (7, y + 1), (8, y), (8, y - 1), (8, y - 2)], NEON[col])
+            px(c, [(4, y - 2), (8, y - 2)], NEON["red"])
         elif kind == "power_shield":
-            c.paint(c.poly([(s - 7, y - 7), (s + 7, y - 7), (s + 6, y + 2), (s, y + 8), (s - 6, y + 2)]), GLOW[col], style="bevel")
-            c.flat(c.line(s, y - 6, s, y + 6, 1), "#ffffff")
+            px(c, [(4, y - 2), (5, y - 2), (6, y - 2), (7, y - 2), (8, y - 2), (4, y - 1), (8, y - 1), (4, y), (8, y), (5, y + 1), (7, y + 1), (6, y + 2)], NEON[col])
         else:
-            c.paint(c.rect(s - 7, y - 5, 14, 11, 2), CHROME[1:], style="bevel")
-            c.flat(c.rect(s - 1.5, y - 3.5, 3, 8), NEON["red"]); c.flat(c.rect(s - 4, y - 1, 8, 3), NEON["red"])
+            px(c, [(6, y - 2), (6, y - 1), (6, y), (6, y + 1), (6, y + 2), (4, y), (5, y), (7, y), (8, y)], NEON["red"])
         c.outline(OUTLINE)
     return painter
 
 
-def shadow(c: Canvas, f: int, n: int) -> None:
-    c.flat(c.ellipse(c.w / 2, c.h / 2, c.w / 2 - 1, c.h / 2 - 1), "#05030a")
+def shadow(c, f, n):
+    c.flat(c.ellipse(c.w / 2, c.h / 2, c.w / 2 - 0.5, c.h / 2 - 0.5), "#020104")
 
 
-def cursor(c: Canvas, f: int, n: int) -> None:
-    s = c.w / 2
-    c.flat(c.ring(s, s, 9, 2), NEON["cyan"])
-    for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
-        c.flat(c.line(s + dx * 5, s + dy * 5, s + dx * 14, s + dy * 14, 2), NEON["cyan"])
-    c.flat(c.rect(s - 1, s - 1, 2, 2), NEON["magenta"])
+def cursor(c, f, n):
+    px(c, [(5, 1), (5, 2), (5, 8), (5, 9), (1, 5), (2, 5), (8, 5), (9, 5)], NEON["cyan"])
+    px(c, [(3, 3), (7, 3), (3, 7), (7, 7)], NEON["cyan"])
+    px(c, [(5, 5)], NEON["magenta"])
     c.outline(OUTLINE)
 
 
-# id -> (w, h, frames, painter); projectile sprites are drawn near-white for tinting.
+def _outlined(painter):
+    def wrapped(c, f, n):
+        painter(c, f, n)
+        c.outline(OUTLINE)
+    return wrapped
+
+
+# id -> (w, h, frames, painter); bullets are drawn near-white for tinting.
 FX = {
-    "bolt": (32, 12, 1, bolt), "lance": (52, 18, 1, lance), "orb": (20, 20, 1, orb), "pellet": (12, 12, 1, pellet),
-    "needle": (26, 9, 1, needle), "rocket": (30, 16, 2, rocket), "blade": (34, 34, 4, blade), "slash": (96, 96, 1, slash),
-    "spark": (32, 32, 4, spark_fx),
-    "xp": (16, 22, 4, xp), "currency": (18, 18, 4, currency), "heal": (22, 22, 2, heal),
-    "power_damage": (40, 40, 4, powerup("power_damage")), "power_haste": (40, 40, 4, powerup("power_haste")),
-    "power_magnet": (40, 40, 4, powerup("power_magnet")), "power_shield": (40, 40, 4, powerup("power_shield")),
-    "power_heal": (40, 40, 4, powerup("power_heal")),
-    "shadow": (32, 12, 1, shadow), "cursor": (36, 36, 1, cursor),
+    "bolt": (8, 3, 1, bolt), "lance": (11, 5, 1, lance), "orb": (5, 5, 1, orb), "pellet": (3, 3, 1, pellet),
+    "needle": (7, 3, 1, needle), "rocket": (8, 5, 2, rocket), "blade": (9, 9, 4, blade), "slash": (24, 24, 1, slash),
+    "spark": (9, 9, 4, spark), "lightning": (16, 7, 4, lightning),
+    "xp": (7, 9, 4, _outlined(lambda c, f, n: _shift(xp, c, f, n))), "currency": (8, 8, 4, _outlined(lambda c, f, n: _shift(currency, c, f, n))),
+    "heal": (9, 9, 2, _outlined(lambda c, f, n: _shift(heal, c, f, n))),
+    "power_damage": (13, 13, 4, powerup("power_damage")), "power_haste": (13, 13, 4, powerup("power_haste")),
+    "power_magnet": (13, 13, 4, powerup("power_magnet")), "power_shield": (13, 13, 4, powerup("power_shield")),
+    "power_heal": (13, 13, 4, powerup("power_heal")),
+    "shadow": (12, 5, 1, shadow), "cursor": (11, 11, 1, cursor),
 }
+
+
+def _shift(painter, c: Canvas, f: int, n: int) -> None:
+    """Paint on a canvas 1 px smaller, then move it in by 1 px so the outline fits."""
+    inner = Canvas(c.w - 2, c.h - 2)
+    painter(inner, f, n)
+    c.rgb[1:-1, 1:-1] = inner.rgb
+    c.alpha[1:-1, 1:-1] = inner.alpha
+    c.dark[1:-1, 1:-1] = inner.dark
 
 
 def frames(fx_id: str) -> list:

@@ -54,11 +54,12 @@ func _load_room() -> void:
 	_avatar.global_position = (_room.get_node("Markers/Spawn") as Node2D).global_position
 	var floor_layer: TileMapLayer = _room.get_node("Floor")
 	var used: Rect2i = floor_layer.get_used_rect()
-	var tile: Vector2 = Vector2(floor_layer.tile_set.tile_size)
-	_camera.limit_left = int(used.position.x * tile.x)
-	_camera.limit_top = int(used.position.y * tile.y)
-	_camera.limit_right = int(used.end.x * tile.x)
-	_camera.limit_bottom = int(used.end.y * tile.y)
+	var tile: Vector2 = Vector2(floor_layer.tile_set.tile_size) * floor_layer.scale
+	var margin: float = Db.cfg_f("camera.edge_margin_px")
+	_camera.limit_left = int(used.position.x * tile.x - margin)
+	_camera.limit_top = int(used.position.y * tile.y - margin)
+	_camera.limit_right = int(used.end.x * tile.x + margin)
+	_camera.limit_bottom = int(used.end.y * tile.y + margin)
 	_camera.global_position = _avatar.global_position
 
 

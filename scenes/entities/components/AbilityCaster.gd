@@ -18,6 +18,16 @@ func _origin() -> Vector2:
 	return _player.global_position
 
 
+## The barrel / blade tip / staff orb of the held weapon.
+func _muzzle() -> Vector2:
+	return _player.call("muzzle_position")
+
+
+func _muzzle_dir(aim: Vector2) -> Vector2:
+	var direction: Vector2 = aim - _muzzle()
+	return direction.normalized() if direction.length() > Db.cfg_f("combat.muzzle_min_aim_px") else _aim_dir(aim)
+
+
 func _aim_dir(aim: Vector2) -> Vector2:
 	var direction: Vector2 = aim - _origin()
 	return direction.normalized() if direction.length_squared() > 0.0 else Vector2.RIGHT
@@ -79,20 +89,20 @@ func _cast_projectile(spec: Dictionary, aim: Vector2) -> void:
 	var params: Dictionary = _bolt(spec)
 	params["split"] = Db.i(spec, "split")
 	params["split_damage_mult"] = Db.f(spec, "split_damage_mult", 1.0)
-	Signals.projectile_requested.emit(ShotFactory.player_shot(_origin(), _aim_dir(aim), Db.f(spec, "damage"), params))
+	Signals.projectile_requested.emit(ShotFactory.player_shot(_muzzle(), _muzzle_dir(aim), Db.f(spec, "damage"), params))
 
 
 func _cast_spread(spec: Dictionary, aim: Vector2) -> void:
 	var count: int = maxi(1, int(Db.f(spec, "count")))
 	var spread: float = deg_to_rad(Db.f(spec, "spread_deg"))
-	var base: float = _aim_dir(aim).angle()
+	var base: float = _muzzle_dir(aim).angle()
 	for burst: int in maxi(1, Db.i(spec, "bursts", 1)):
 		for index: int in count:
 			var t: float = float(index) / float(count - 1) if count > 1 else 0.5
 			var params: Dictionary = _bolt(spec)
 			params["delay"] = Db.f(spec, "burst_gap_sec") * float(burst)
 			var direction: Vector2 = Vector2.RIGHT.rotated(base + lerpf(-spread * 0.5, spread * 0.5, t))
-			Signals.projectile_requested.emit(ShotFactory.player_shot(_origin(), direction, Db.f(spec, "damage"), params))
+			Signals.projectile_requested.emit(ShotFactory.player_shot(_muzzle(), direction, Db.f(spec, "damage"), params))
 
 
 func _cast_radial(spec: Dictionary) -> void:
@@ -115,7 +125,7 @@ func _cast_chain(spec: Dictionary, aim: Vector2) -> void:
 		Signals.cast_failed.emit("ability", Db.i(spec, "slot"), "no_target")
 		return
 	var extra: Dictionary = {"source": Db.s(spec, "id"), "stun_sec": Db.f(spec, "stun_sec")}
-	ShotFactory.chain(world, _origin(), first, Db.f(spec, "damage"), int(Db.f(spec, "jumps")), Db.f(spec, "jump_range"), extra, Db.s(spec, "color", "cyan"))
+	ShotFactory.chain(world, _muzzle(), first, Db.f(spec, "damage"), int(Db.f(spec, "jumps")), Db.f(spec, "jump_range"), extra, Db.s(spec, "color", "cyan"))
 
 
 func _cast_blink(spec: Dictionary, aim: Vector2) -> void:
@@ -151,7 +161,7 @@ func _cast_homing(spec: Dictionary, aim: Vector2) -> void:
 		if Db.f(spec, "blast_radius") > 0.0:
 			params["blast_on_expire"] = {"damage": Db.f(spec, "damage") * Db.f(spec, "blast_damage_mult", 1.0), "radius": Db.f(spec, "blast_radius")}
 		var angle: float = base + TAU * (float(index) / float(count) - 0.5) * 0.5
-		Signals.projectile_requested.emit(ShotFactory.player_shot(_origin(), Vector2.RIGHT.rotated(angle), Db.f(spec, "damage"), params))
+		Signals.projectile_requested.emit(ShotFactory.player_shot(_muzzle(), Vector2.RIGHT.rotated(angle), Db.f(spec, "damage"), params))
 
 
 func _cast_orbit(spec: Dictionary) -> void:

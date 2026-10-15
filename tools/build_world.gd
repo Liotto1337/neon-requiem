@@ -2,19 +2,28 @@ extends Node
 ## World builder (run once, or after changing data/tiles.json / locations.json layouts):
 ##   godot --headless --path . res://tools/BuildWorld.tscn
 ## Runs as a scene so the location scripts compile against the autoloads.
-## 1. Builds the TileSet from the code-drawn atlas assets/tiles/neon_atlas.png (64x64 tiles,
+## 1. Builds the TileSet from the code-drawn atlas assets/tiles/neon_atlas.png (16x16 tiles,
 ##    made by `python3 tools/art/build_art.py tiles` from data/tiles.json): physics layer =
-##    wall, custom data "collision" and "tile_id", floor variants, animated hazards.
-## 2. Assembles every location scene from its "layout" block: Floor / Walls / Decor
-##    TileMapLayers + Markers. Wall cells with open floor below get the "face" tile (3/4 view).
+##    wall, custom data "collision" and "tile_id", floor variants, animated hazards, wall
+##    blocks (2x2 atlas cells each, 16 variants by open neighbours) and floor shadows.
+## 2. Assembles every location scene from its "layout" block: Floor / Shadows / Decor / Walls
+##    TileMapLayers (drawn x art.pixel_scale) + Markers. Walls are oblique blocks (roof, front
+##    and right side faces) y-sorted with the entities; Shadows darkens floor to their
+##    bottom-left.
 ## 3. Assembles the hub room (data/hub.json): floor with neon guide lines, walls and pillars,
 ##    decor and markers for the spawn and every terminal.
 ##    The saved .tscn files stay editable in the editor.
 
 const Db = preload("res://core/Db.gd")
 const LAYER_FLOOR_Z: int = -10
+const LAYER_SHADOW_Z: int = -9
 const LAYER_DECOR_Z: int = -8
-const LAYER_WALL_Z: int = -6
+const LAYER_WALL_Z: int = 0
+const BLOCK_VARIANTS: int = 16
+const OPEN_S: int = 1
+const OPEN_E: int = 2
+const OPEN_N: int = 4
+const OPEN_W: int = 8
 const BOSS_OFFSET_CELLS: int = 8
 const SPOT_ATTEMPTS: int = 400
 
@@ -70,6 +79,10 @@ func _make_tileset(texture: Texture2D) -> TileSet:
 
 
 func _add_tile(source: TileSetAtlasSource, tile: Dictionary, half: float) -> void:
+	if bool(tile.get("block", false)):
+		for variant: int in BLOCK_VARIANTS:
+			_add_block(source, tile, _atlas(tile) + Vector2i(variant * 2, 0), half)
+		return
 	for variant: int in maxi(1, Db.i(tile, "variants", 1)):
 		_add_cell(source, tile, _atlas(tile) + Vector2i(variant, 0), half)
 	var frames: int = Db.i(tile, "frames", 1)
@@ -92,6 +105,20 @@ func _add_cell(source: TileSetAtlasSource, tile: Dictionary, coords: Vector2i, h
 		]))
 
 
+## Wall block: a 2x2-cell texture centred on its grid cell, full-cell collision, sorted by the
+## bottom edge of its footprint so entities north of it pass behind the roof.
+func _add_block(source: TileSetAtlasSource, tile: Dictionary, coords: Vector2i, half: float) -> void:
+	source.create_tile(coords, Vector2i(2, 2))
+	var data: TileData = source.get_tile_data(coords, 0)
+	data.set_custom_data("collision", Db.s(tile, "collision"))
+	data.set_custom_data("tile_id", Db.s(tile, "id"))
+	data.y_sort_origin = int(half)
+	data.add_collision_polygon(0)
+	data.set_collision_polygon_points(0, 0, PackedVector2Array([
+		Vector2(-half, -half), Vector2(half, -half), Vector2(half, half), Vector2(-half, half),
+	]))
+
+
 func _atlas(tile: Dictionary) -> Vector2i:
 	var coords: Array = Db.a(tile, "atlas")
 	return Vector2i(int(Db.num(coords[0])), int(Db.num(coords[1])))
@@ -107,15 +134,18 @@ func _build_location(location: Dictionary, tileset: TileSet) -> bool:
 	root.name = Db.s(location, "node_name")
 	root.set_script(load(Db.s(location, "script")))
 	root.set("location_id", Db.s(location, "id"))
+	root.y_sort_enabled = true
 	var floor_layer: TileMapLayer = _layer(root, "Floor", tileset, LAYER_FLOOR_Z)
-	var wall_layer: TileMapLayer = _layer(root, "Walls", tileset, LAYER_WALL_Z)
+	var shadow_layer: TileMapLayer = _layer(root, "Shadows", tileset, LAYER_SHADOW_Z)
 	var decor_layer: TileMapLayer = _layer(root, "Decor", tileset, LAYER_DECOR_Z)
+	var wall_layer: TileMapLayer = _layer(root, "Walls", tileset, LAYER_WALL_Z)
 	var solid: Dictionary = _plan_walls(layout, size)
 	_paint_floor(floor_layer, layout, size)
 	var hazards: Dictionary = _paint_hazards(floor_layer, layout, size, solid)
-	_paint_walls(wall_layer, layout, size, solid)
+	var walls: Dictionary = _paint_walls(wall_layer, layout, size, solid)
+	_paint_shadows(shadow_layer, walls, size)
 	_paint_decor(decor_layer, layout, size, solid, hazards)
-	_add_markers(root, layout, size, solid, tileset.tile_size.x)
+	_add_markers(root, layout, size, solid, _world_tile())
 	var scene: PackedScene = PackedScene.new()
 	if scene.pack(root) != OK or ResourceSaver.save(scene, Db.s(location, "scene")) != OK:
 		push_error("build_world: cannot save %s" % Db.s(location, "scene"))
@@ -124,11 +154,17 @@ func _build_location(location: Dictionary, tileset: TileSet) -> bool:
 	return true
 
 
+func _world_tile() -> int:
+	return Db.i(Db.table("tiles"), "tile_size") * int(Db.cfg_f("art.pixel_scale"))
+
+
 func _layer(root: Node2D, layer_name: String, tileset: TileSet, z: int) -> TileMapLayer:
 	var layer: TileMapLayer = TileMapLayer.new()
 	layer.name = layer_name
 	layer.tile_set = tileset
 	layer.z_index = z
+	layer.scale = Vector2.ONE * Db.cfg_f("art.pixel_scale")
+	layer.y_sort_enabled = z == LAYER_WALL_Z
 	root.add_child(layer)
 	layer.owner = root
 	return layer
@@ -282,8 +318,9 @@ func _plan_arena(layout: Dictionary, size: Vector2i, solid: Dictionary) -> void:
 			solid[cell + offset] = true
 
 
-## Wall tiles by cell (interior + border); a wall with open floor below shows its face tile.
-func _paint_walls(layer: TileMapLayer, layout: Dictionary, size: Vector2i, solid: Dictionary) -> void:
+## Wall blocks by cell (interior + border), variant by which neighbours are open. Returns the
+## wall map {cell: tile_id} for the shadow pass.
+func _paint_walls(layer: TileMapLayer, layout: Dictionary, size: Vector2i, solid: Dictionary) -> Dictionary:
 	var walls: Dictionary = {}
 	for cell: Variant in solid.keys():
 		walls[cell] = solid[cell] if solid[cell] is String else Db.s(layout, "wall")
@@ -294,10 +331,32 @@ func _paint_walls(layer: TileMapLayer, layout: Dictionary, size: Vector2i, solid
 		walls[Vector2i(0, y)] = Db.s(layout, "border")
 		walls[Vector2i(size.x - 1, y)] = Db.s(layout, "border")
 	for cell: Variant in walls.keys():
-		var tile_id: String = str(walls[cell])
-		var below: Vector2i = (cell as Vector2i) + Vector2i(0, 1)
-		var face: String = Db.s(Db.d(_tiles, tile_id), "face")
-		_put(layer, cell, face if face != "" and not walls.has(below) and below.y < size.y else tile_id)
+		_put_block(layer, cell, str(walls[cell]), walls)
+	return walls
+
+
+func _put_block(layer: TileMapLayer, cell: Vector2i, tile_id: String, walls: Dictionary) -> void:
+	if not _tiles.has(tile_id):
+		return
+	var mask: int = 0
+	mask |= OPEN_S if not walls.has(cell + Vector2i(0, 1)) else 0
+	mask |= OPEN_E if not walls.has(cell + Vector2i(1, 0)) else 0
+	mask |= OPEN_N if not walls.has(cell + Vector2i(0, -1)) else 0
+	mask |= OPEN_W if not walls.has(cell + Vector2i(-1, 0)) else 0
+	layer.set_cell(cell, Db.i(Db.table("tiles"), "source_id"), _atlas(_tiles[tile_id]) + Vector2i(mask * 2, 0))
+
+
+## Floor cells darkened by walls to their east / north / north-east (light from top-right).
+func _paint_shadows(layer: TileMapLayer, walls: Dictionary, size: Vector2i) -> void:
+	var tile: Dictionary = Db.d(_tiles, "shadow")
+	for x: int in size.x:
+		for y: int in size.y:
+			var cell: Vector2i = Vector2i(x, y)
+			if walls.has(cell):
+				continue
+			var mask: int = (1 if walls.has(cell + Vector2i(1, 0)) else 0) | (2 if walls.has(cell + Vector2i(0, -1)) else 0) | (4 if walls.has(cell + Vector2i(1, -1)) else 0)
+			if mask > 0 and not tile.is_empty():
+				layer.set_cell(cell, Db.i(Db.table("tiles"), "source_id"), _atlas(tile) + Vector2i(mask - 1, 0))
 
 
 func _paint_hazards(layer: TileMapLayer, layout: Dictionary, size: Vector2i, solid: Dictionary) -> Dictionary:
@@ -367,9 +426,11 @@ func _build_hub(tileset: TileSet) -> bool:
 	var size: Vector2i = Vector2i(int(Db.num(Db.a(room, "size")[0])), int(Db.num(Db.a(room, "size")[1])))
 	var root: Node2D = Node2D.new()
 	root.name = Db.s(hub, "node_name")
+	root.y_sort_enabled = true
 	var floor_layer: TileMapLayer = _layer(root, "Floor", tileset, LAYER_FLOOR_Z)
-	var wall_layer: TileMapLayer = _layer(root, "Walls", tileset, LAYER_WALL_Z)
+	var shadow_layer: TileMapLayer = _layer(root, "Shadows", tileset, LAYER_SHADOW_Z)
 	var decor_layer: TileMapLayer = _layer(root, "Decor", tileset, LAYER_DECOR_Z)
+	var wall_layer: TileMapLayer = _layer(root, "Walls", tileset, LAYER_WALL_Z)
 	for x: int in size.x:
 		for y: int in size.y:
 			_put(floor_layer, Vector2i(x, y), Db.s(room, "floor"))
@@ -378,11 +439,12 @@ func _build_hub(tileset: TileSet) -> bool:
 	var solid: Dictionary = {}
 	for cell: Variant in Db.a(room, "pillars"):
 		solid[_cell(cell)] = Db.s(room, "wall")
-	_paint_walls(wall_layer, {"wall": Db.s(room, "wall"), "border": Db.s(room, "wall")}, size, solid)
+	var walls: Dictionary = _paint_walls(wall_layer, {"wall": Db.s(room, "wall"), "border": Db.s(room, "wall")}, size, solid)
+	_paint_shadows(shadow_layer, walls, size)
 	for group: Variant in Db.a(room, "decor"):
 		for cell: Variant in Db.a(group, "cells"):
 			_put(decor_layer, _cell(cell), Db.s(group, "tile"))
-	_add_hub_markers(root, hub, tileset.tile_size.x)
+	_add_hub_markers(root, hub, _world_tile())
 	var scene: PackedScene = PackedScene.new()
 	if scene.pack(root) != OK or ResourceSaver.save(scene, Db.s(hub, "scene")) != OK:
 		push_error("build_world: cannot save %s" % Db.s(hub, "scene"))

@@ -50,6 +50,7 @@ func _make_button(node: Dictionary) -> Button:
 	button.icon = Sprites.icon("meta", id)
 	button.expand_icon = true
 	button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	button.add_theme_constant_override("icon_max_width", 64)
 	button.mouse_entered.connect(func() -> void: _show_info(node))
 	button.pressed.connect(func() -> void: Signals.meta_node_purchase_requested.emit(id))
 	var pips: Label = _label("", 14, Db.color("white"))

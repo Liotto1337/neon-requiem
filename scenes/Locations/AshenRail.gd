@@ -23,7 +23,7 @@ func _launch_train(now: int, flavor: Dictionary) -> void:
 	var tracks: Array = Db.a(Db.d(config, "layout"), "tracks")
 	if tracks.is_empty():
 		return
-	var tile: float = float(floor_layer.tile_set.tile_size.y)
+	var tile: float = float(floor_layer.tile_set.tile_size.y) * floor_layer.scale.y
 	var row: float = Db.num(LootRoller.pick(GameState.rng, tracks))
 	var area: Rect2 = bounds()
 	var y: float = area.position.y + (row + float(Db.i(Db.d(config, "layout"), "track_width", 2)) * 0.5) * tile

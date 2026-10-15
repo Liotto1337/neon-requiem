@@ -48,6 +48,7 @@ signal drones_command(command: String, data: Dictionary)
 signal adds_requested(enemy_id: String, count: int, position: Vector2, spread_px: float)
 signal magnet_requested
 signal beam_fx_requested(points: PackedVector2Array, color: Color, width: float, duration_sec: float)
+signal lightning_fx_requested(points: PackedVector2Array, color: Color, duration_sec: float)
 signal ring_fx_requested(position: Vector2, radius: float, color: Color, duration_sec: float)
 signal damage_number_requested(position: Vector2, amount: float, crit: bool, color: Color)
 signal screen_shake_requested(strength: float, duration_sec: float)

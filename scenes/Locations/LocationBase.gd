@@ -51,7 +51,7 @@ func display_name() -> String:
 
 func bounds() -> Rect2:
 	var used: Rect2i = floor_layer.get_used_rect()
-	var tile: Vector2 = Vector2(floor_layer.tile_set.tile_size)
+	var tile: Vector2 = Vector2(floor_layer.tile_set.tile_size) * floor_layer.scale
 	return Rect2(floor_layer.global_position + Vector2(used.position) * tile, Vector2(used.size) * tile)
 
 

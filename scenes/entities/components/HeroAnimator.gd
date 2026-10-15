@@ -2,7 +2,8 @@ extends Node
 ## Hero sprite state machine over the code-drawn sheet "heroes/<id>" (data/sprites.json).
 ## One-shots by priority: hurt > levelup > cast > attack. The R action (reload / parry /
 ## recall) plays "reload" standing or "reload_run" while moving, stretched to its duration.
-## Otherwise run / idle. The sprite faces the aim side. Player.animate() feeds it.
+## Otherwise run / idle. Every clip has a side / down / up version picked from the aim
+## direction (side is mirrored for the left). Player.animate() feeds it.
 
 const Sprites = preload("res://core/Sprites.gd")
 const MSEC: float = 1000.0
@@ -18,11 +19,12 @@ var _player: CharacterBody2D = null
 var _one_shot: String = ""
 var _reload_until_msec: int = 0
 var _reload_speed: float = 1.0
+var facing: String = "side"
 
 
 func setup(player: CharacterBody2D, visual: Node2D, hero_id: String) -> void:
 	_player = player
-	sprite = Sprites.attach(visual, "heroes/" + hero_id, String(CLIP_IDLE))
+	sprite = Sprites.attach(visual, "heroes/" + hero_id, "idle_side")
 	sprite.animation_finished.connect(_on_finished)
 
 
@@ -42,7 +44,7 @@ func play(kind: String, duration_sec: float = 0.0) -> void:
 		return
 	_one_shot = kind
 	sprite.speed_scale = 1.0
-	sprite.play(StringName(kind))
+	sprite.play(Sprites.clip_for(sprite, kind, facing))
 	sprite.frame = 0
 
 
@@ -52,9 +54,10 @@ func reloading() -> bool:
 
 func _clip_length(clip: StringName) -> float:
 	var frames: SpriteFrames = sprite.sprite_frames
-	if not frames.has_animation(clip):
+	var clip_name: StringName = Sprites.clip_for(sprite, String(clip), facing)
+	if not frames.has_animation(clip_name):
 		return 1.0
-	return float(frames.get_frame_count(clip)) / maxf(1.0, frames.get_animation_speed(clip))
+	return float(frames.get_frame_count(clip_name)) / maxf(1.0, frames.get_animation_speed(clip_name))
 
 
 func _on_finished() -> void:
@@ -64,7 +67,12 @@ func _on_finished() -> void:
 func _process(_delta: float) -> void:
 	if sprite == null or _player == null:
 		return
-	sprite.flip_h = (_player.get("aim_position") as Vector2).x < _player.global_position.x
+	var aim: Vector2 = (_player.get("aim_position") as Vector2) - _player.global_position
+	var new_facing: String = Sprites.facing(aim)
+	sprite.flip_h = new_facing == "side" and aim.x < 0.0
+	if new_facing != facing:
+		facing = new_facing
+		_refacing()
 	if _one_shot != "":
 		return
 	var moving: bool = _player.velocity.length() > MOVE_THRESHOLD
@@ -74,11 +82,21 @@ func _process(_delta: float) -> void:
 		_loop(CLIP_RUN if moving else CLIP_IDLE, 1.0)
 
 
+## Same clip, new facing: keep the frame and progress.
+func _refacing() -> void:
+	var base: String = String(sprite.animation).trim_suffix("_side").trim_suffix("_down").trim_suffix("_up")
+	var keep: int = sprite.frame
+	var progress: float = sprite.frame_progress
+	sprite.play(Sprites.clip_for(sprite, base, facing))
+	sprite.set_frame_and_progress(mini(keep, sprite.sprite_frames.get_frame_count(sprite.animation) - 1), progress)
+
+
 ## Keeps a base clip running; switching between reload and reload_run keeps the frame.
 func _loop(clip: StringName, speed: float) -> void:
 	sprite.speed_scale = speed
-	if sprite.animation == clip and sprite.is_playing():
+	var clip_name: StringName = Sprites.clip_for(sprite, String(clip), facing)
+	if sprite.animation == clip_name and sprite.is_playing():
 		return
-	var keep: int = sprite.frame if (sprite.animation == CLIP_RELOAD or sprite.animation == CLIP_RELOAD_RUN) else 0
-	sprite.play(clip)
-	sprite.frame = mini(keep, sprite.sprite_frames.get_frame_count(clip) - 1)
+	var keep: int = sprite.frame if String(sprite.animation).begins_with("reload") else 0
+	sprite.play(clip_name)
+	sprite.frame = mini(keep, sprite.sprite_frames.get_frame_count(clip_name) - 1)

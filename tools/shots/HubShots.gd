@@ -32,7 +32,6 @@ func _run() -> void:
 	SaveManager.delete_all()
 	MetaState.new_profile()
 	MetaState.currency = 1500
-	MetaState.unlocked_heroes.assign(["vector", "katar"])
 	MetaState.meta_tree_nodes = {"o_power": 2, "o_crit": 1, "d_vitality": 3, "d_plating": 1, "u_stride": 1}
 	var placeholder: Node = Node.new()
 	get_tree().root.add_child(placeholder)

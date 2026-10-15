@@ -1,10 +1,11 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scenes/entities/Player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scenes/entities/components/PlayerAttack.gd" id="2_attack"]
 [ext_resource type="Script" path="res://scenes/entities/components/AbilityCaster.gd" id="3_caster"]
 [ext_resource type="Script" path="res://scenes/entities/components/HeroAnimator.gd" id="4_animator"]
 [ext_resource type="Script" path="res://scenes/entities/components/ReloadBar.gd" id="5_reload"]
+[ext_resource type="Script" path="res://scenes/entities/components/WeaponHolder.gd" id="6_weapon"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
 radius = 11.0
@@ -22,6 +23,9 @@ script = ExtResource("1_player")
 shape = SubResource("CircleShape2D_body")
 
 [node name="Visual" type="Node2D" parent="."]
+
+[node name="Weapon" type="Node2D" parent="."]
+script = ExtResource("6_weapon")
 
 [node name="Orbit" type="Node2D" parent="."]
 

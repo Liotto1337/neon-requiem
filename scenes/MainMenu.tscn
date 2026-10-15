@@ -1,5 +1,6 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
+[ext_resource type="Script" path="res://scenes/fx/Backdrop.gd" id="99_backdrop"]
 [ext_resource type="Script" path="res://scenes/scripts/MainMenu.gd" id="1_menu"]
 
 [sub_resource type="Environment" id="Environment_glow"]
@@ -30,6 +31,9 @@ script = ExtResource("1_menu")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_glow")
+
+[node name="Sky" type="CanvasLayer" parent="."]
+script = ExtResource("99_backdrop")
 
 [node name="Backdrop" type="Node2D" parent="."]
 

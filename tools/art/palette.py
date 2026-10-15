@@ -1,45 +1,55 @@
-"""Neon Requiem palette: neon accents (bright, glow in game) and matte material ramps
-(dark -> light, max channel < 0.86 so the sprite shader leaves them unboosted)."""
-from pixlib import mix, ramp
+"""Neon Requiem palette (dark revision): deep, low-value materials and a restrained neon set.
+Matte colours stay below 0.80 of max channel; neon accents (the brightest step of each GLOW
+ramp) are >= 0.86 so the in-game SpriteFx shader boosts only them into the glow."""
+from pixlib import mix
 
-OUTLINE = "#0b0714"
-INK = "#140c22"
+OUTLINE = "#06040b"
+INK = "#0d0916"
 
 NEON = {
-    "cyan": "#00f0ff",
-    "magenta": "#ff2e88",
-    "lime": "#b6ff00",
-    "amber": "#ffb800",
-    "white": "#f0f0ff",
-    "red": "#ff3344",
-    "blue": "#3a7dff",
-    "purple": "#b14dff",
-    "orange": "#ff7a1a",
-    "green": "#33ff77",
-    "yellow": "#ffee33",
+    "cyan": "#3fd8e8",
+    "magenta": "#e8468e",
+    "lime": "#a8dc3c",
+    "amber": "#e8b03c",
+    "white": "#dcdcf0",
+    "red": "#e84a52",
+    "blue": "#5a84e8",
+    "purple": "#a46ae0",
+    "orange": "#e8803a",
+    "green": "#4ad87a",
+    "yellow": "#e0d440",
 }
 
-# Ramps used by neon parts: deep tone -> neon -> white-hot core.
-GLOW = {name: [mix(c, "#0b0714", 0.55), mix(c, "#0b0714", 0.25), c, mix(c, "#ffffff", 0.45), "#fbfbff"]
-        for name, c in NEON.items()}
-# Same hue but matte (stays below the boost threshold): painted lights, cloth, enamel.
-TINT = {name: ramp(mix(c, "#0b0714", 0.82), mix(c, "#1a1426", 0.5), mix(c, "#1a1426", 0.2), 5)
-        for name, c in NEON.items()}
+# Glowing parts: deep tone -> mid -> neon (boosted in game) -> pale core.
+GLOW = {name: [mix(c, OUTLINE, 0.62), mix(c, OUTLINE, 0.32), c, mix(c, "#ffffff", 0.35)] for name, c in NEON.items()}
+# Same hue, matte (never boosted): enamel, cloth, painted metal.
+TINT = {name: [mix(c, OUTLINE, 0.84), mix(c, OUTLINE, 0.66), mix(c, "#1a1426", 0.45), mix(c, "#1a1426", 0.22)] for name, c in NEON.items()}
 
-STEEL = ramp("#0f0d1a", "#353450", "#8d90aa", 5)
-GUNMETAL = ramp("#0c0a14", "#26233a", "#5e5b7c", 5)
-CHROME = ramp("#17152a", "#5c6080", "#b9bdd2", 6)
-DARKCLOTH = ramp("#0b0814", "#221836", "#4e3e70", 5)
-COAT = ramp("#0a0912", "#1c1a30", "#454569", 5)
-LEATHER = ramp("#120a0c", "#3a2224", "#7a4e44", 5)
-SKIN = ramp("#2a1418", "#8c5446", "#d09a7c", 5)
-SKIN_PALE = ramp("#2a1c26", "#8a7088", "#cab4c8", 5)
-RUST = ramp("#140a06", "#5a2e16", "#b0663a", 5)
-BRASS = ramp("#1a1006", "#6a4a14", "#c4983c", 5)
-MOSS = ramp("#060f08", "#1c3e1a", "#4f8a2e", 5)
-BONE = ramp("#1c1820", "#6e6878", "#c6c0cc", 5)
-MARBLE = ramp("#16122a", "#4e4870", "#aaa4c8", 5)
-BRICK = ramp("#14070f", "#4a1c34", "#86405a", 5)
-CONCRETE = ramp("#0e0a16", "#2e2840", "#5a5274", 5)
-GLASS = ["#0c1a2e", "#1a3a5a", "#2e6a8a", "#5ab0c8", "#c8f4ff"]
-VOID = ["#05020a", "#12071f", "#250d3d", "#4a1a70", "#8a3ad0"]
+# Material ramps, dark -> light, 4 steps (16 px sprites need few tones).
+STEEL = ["#0e0c16", "#22202e", "#3a384e", "#5e5c78"]
+GUNMETAL = ["#09080f", "#17151f", "#2a2738", "#423e56"]
+CHROME = ["#14121e", "#34364a", "#5c6078", "#8c90aa"]
+DARKCLOTH = ["#0a0712", "#191226", "#2a1f3e", "#3e3058"]
+COAT = ["#09080f", "#171628", "#272640", "#3c3c5e"]
+LEATHER = ["#100809", "#2a171a", "#46282a", "#644038"]
+SKIN = ["#2a1614", "#5e362c", "#8e5a46", "#b8826a"]
+SKIN_PALE = ["#211a24", "#4e4458", "#786c84", "#a69ab4"]
+RUST = ["#100806", "#2e180e", "#4e2a16", "#764222"]
+BRASS = ["#140c04", "#3e2c0e", "#6c5018", "#a07a2a"]
+MOSS = ["#060c07", "#112410", "#20401a", "#365e24"]
+BONE = ["#18141c", "#4a4452", "#7a7484", "#a8a2b2"]
+MARBLE = ["#120f20", "#2a2540", "#47406a", "#6e6696"]
+BRICK = ["#10060c", "#2c1222", "#461c34", "#62304a"]
+CONCRETE = ["#0b0812", "#1a1626", "#2a2438", "#3e364e"]
+GLASS = ["#081220", "#12283e", "#1e4860", "#3a7890"]
+VOID = ["#030106", "#0b0414", "#180a2a", "#2e1450"]
+
+# Floors are the darkest layer so sprites and bullets read on top of them.
+FLOOR = {
+    "slum": ["#0b0712", "#110b1a", "#171024", "#1e152e"],
+    "core": ["#060a18", "#0a1022", "#0e162e", "#131d3a"],
+    "garden": ["#050a06", "#08120a", "#0d1a0f", "#132414"],
+    "rail": ["#0c0705", "#140c08", "#1c120c", "#261810"],
+    "spire": ["#0c0a16", "#131022", "#1a162e", "#221d3a"],
+    "hub": ["#08070f", "#0d0c18", "#131222", "#1a182e"],
+}

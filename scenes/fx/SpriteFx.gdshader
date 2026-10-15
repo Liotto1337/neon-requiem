@@ -4,12 +4,12 @@
 //    colours stay below it.
 //  * Hit flash: modulate above 1.0 (e.g. Color(2, 2, 2)) blends the sprite towards white
 //    instead of just brightening it.
-//  * Elite outline (outline_mode >= 0): a 2 px silhouette ring around the sprite —
+//  * Elite outline (outline_mode >= 0): a 1-texel silhouette ring around the sprite —
 //    0 single colour, 1 two colours alternating around the body, 2 rainbow.
 shader_type canvas_item;
 
-uniform float neon_threshold = 0.9;
-uniform float neon_boost = 1.9;
+uniform float neon_threshold = 0.84;
+uniform float neon_boost = 1.5;
 uniform int outline_mode = -1;
 uniform vec4 color_a : source_color = vec4(1.0, 0.2, 0.25, 1.0);
 uniform vec4 color_b : source_color = vec4(0.2, 0.45, 1.0, 1.0);
@@ -51,9 +51,9 @@ void fragment() {
 	vec4 result = vec4(base, tex.a * modulate_color.a);
 	if (outline_mode >= 0 && tex.a < 0.5) {
 		float around = 0.0;
-		for (int x = -2; x <= 2; x++) {
-			for (int y = -2; y <= 2; y++) {
-				if (abs(x) + abs(y) <= 2) {
+		for (int x = -1; x <= 1; x++) {
+			for (int y = -1; y <= 1; y++) {
+				if (abs(x) + abs(y) <= 1) {
 					around = max(around, texture(TEXTURE, UV + vec2(float(x), float(y)) * TEXTURE_PIXEL_SIZE).a);
 				}
 			}

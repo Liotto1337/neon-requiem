@@ -58,7 +58,7 @@ text = "0/10"
 vertical_alignment = 1
 
 [node name="CreditsIcon" type="TextureRect" parent="Vitals/Rows/Header"]
-custom_minimum_size = Vector2(28, 28)
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 mouse_filter = 2
 texture = ExtResource("5_credits")

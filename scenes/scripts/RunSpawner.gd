@@ -5,6 +5,7 @@ extends Node
 
 const Db = preload("res://core/Db.gd")
 const Neon = preload("res://core/Neon.gd")
+const LIGHTNING_SCRIPT: Script = preload("res://scenes/fx/Lightning.gd")
 const ENEMY_SCENE: PackedScene = preload("res://scenes/entities/Enemy.tscn")
 const ELITE_SCENE: PackedScene = preload("res://scenes/entities/EliteEnemy.tscn")
 const BOSS_SCENE: PackedScene = preload("res://scenes/entities/Boss.tscn")
@@ -42,6 +43,7 @@ func setup(layers: Dictionary, player: Node2D) -> void:
 	Signals.drone_requested.connect(spawn_drone)
 	Signals.adds_requested.connect(spawn_adds)
 	Signals.beam_fx_requested.connect(spawn_beam)
+	Signals.lightning_fx_requested.connect(spawn_lightning)
 	Signals.ring_fx_requested.connect(spawn_ring)
 	Signals.damage_number_requested.connect(spawn_damage_number)
 
@@ -201,6 +203,14 @@ func spawn_beam(points: PackedVector2Array, color: Color, width: float, duration
 	line.z_index = FX_Z
 	_fx.add_child.call_deferred(line)
 	_fade_out.call_deferred(line, duration_sec)
+
+
+func spawn_lightning(points: PackedVector2Array, color: Color, duration_sec: float) -> void:
+	var bolt: Node2D = Node2D.new()
+	bolt.set_script(LIGHTNING_SCRIPT)
+	bolt.call("setup", points, color, duration_sec)
+	bolt.z_index = FX_Z
+	_fx.add_child.call_deferred(bolt)
 
 
 func spawn_ring(position: Vector2, radius: float, color: Color, duration_sec: float) -> void:
