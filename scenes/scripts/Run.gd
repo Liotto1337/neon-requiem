@@ -226,5 +226,4 @@ func _go_to_hub() -> void:
 	GameState.end_session()
 	get_tree().paused = false
 	TimeService.set_paused(false)
-	AdManager.show_interstitial(bool(MetaState.flags.get("no_ads", false)))
 	get_tree().change_scene_to_file(Db.cfg_s("scenes.hub"))

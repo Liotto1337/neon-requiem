@@ -1,6 +1,6 @@
 extends Node
 ## Persistent meta progression owner: banked currency, unlocked heroes, skill tree levels,
-## signature item tiers, lifetime stats and purchases. Mutate only through methods; every
+## signature item tiers and lifetime stats. Mutate only through methods; every
 ## mutation saves user://meta_save.json and emits Signals.meta_changed once.
 
 const Db = preload("res://core/Db.gd")
@@ -23,8 +23,6 @@ func _ready() -> void:
 	Signals.hero_unlock_requested.connect(unlock_hero)
 	Signals.meta_node_purchase_requested.connect(purchase_node)
 	Signals.starting_item_upgrade_requested.connect(upgrade_starting_item)
-	Signals.purchase_completed.connect(_on_purchase_completed)
-	Signals.ad_rewarded_completed.connect(_on_ad_rewarded)
 	var data: Dictionary = SaveManager.load_meta()
 	if data.is_empty():
 		new_profile()
@@ -41,7 +39,7 @@ func new_profile() -> void:
 	for hero: Variant in Db.list("heroes", "heroes"):
 		starting_item_tiers[Db.s(hero, "id")] = 1
 	stats = _default_stats()
-	flags = {"no_ads": false}
+	flags = {}
 	selected_hero = Db.cfg_s("meta.starting_hero")
 
 
@@ -62,7 +60,6 @@ func snapshot() -> Dictionary:
 		"stats": stats.duplicate(),
 		"selected_hero": selected_hero,
 		"has_run_save": SaveManager.has_run_save(),
-		"no_ads": bool(flags.get("no_ads", false)),
 	}
 
 
@@ -192,27 +189,6 @@ func bank_run(summary: Dictionary) -> int:
 	return banked
 
 
-func _on_purchase_completed(sku: String) -> void:
-	var grant: Dictionary = Db.d(IAP.product(sku), "grant")
-	currency += Db.i(grant, "currency")
-	for hero: Variant in Db.a(grant, "unlock_heroes"):
-		if not is_unlocked(str(hero)):
-			unlocked_heroes.append(str(hero))
-	if bool(grant.get("no_ads", false)):
-		flags["no_ads"] = true
-	_commit()
-	Signals.toast_requested.emit("Покупка получена")
-
-
-func _on_ad_rewarded(placement: String) -> void:
-	var reward: Dictionary = Db.d(Db.d(Db.d(Db.table("iap"), "ads"), "rewarded"), placement)
-	if reward.is_empty():
-		return
-	currency += Db.i(reward, "currency")
-	_commit()
-	Signals.toast_requested.emit("+%d кредитов" % Db.i(reward, "currency"))
-
-
 func _commit() -> void:
 	SaveManager.write_meta(to_save_dict())
 	emit_all()
@@ -246,5 +222,6 @@ func from_save_dict(data: Dictionary) -> void:
 		starting_item_tiers[str(hero_id)] = maxi(1, Db.i(Db.d(data, "starting_item_tiers"), str(hero_id), 1))
 	stats.merge(Db.d(data, "stats"), true)
 	flags.merge(Db.d(data, "flags"), true)
+	flags.erase("no_ads")
 	var hero: String = Db.s(data, "selected_hero")
 	selected_hero = hero if is_unlocked(hero) else unlocked_heroes[0]

@@ -32,8 +32,6 @@ SpawnDirector="*res://autoload/SpawnDirector.gd"
 ItemSystem="*res://autoload/ItemSystem.gd"
 AbilitySystem="*res://autoload/AbilitySystem.gd"
 AudioBus="*res://autoload/AudioBus.gd"
-IAP="*res://autoload/IAP.gd"
-AdManager="*res://autoload/AdManager.gd"
 MetaState="*res://autoload/MetaState.gd"
 GameState="*res://autoload/GameState.gd"
 

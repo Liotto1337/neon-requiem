@@ -120,23 +120,6 @@ layout_mode = 2
 size_flags_vertical = 4
 text = "Улучшить"
 
-[node name="ProductsTitle" type="Label" parent="Margin/Rows/Tabs/Shop"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.721569, 0, 1)
-theme_override_font_sizes/font_size = 26
-text = "ПОКУПКИ (заглушка Яндекс Игр)"
-
-[node name="Products" type="GridContainer" parent="Margin/Rows/Tabs/Shop"]
-layout_mode = 2
-theme_override_constants/h_separation = 14
-theme_override_constants/v_separation = 14
-columns = 2
-
-[node name="Ad" type="Button" parent="Margin/Rows/Tabs/Shop"]
-custom_minimum_size = Vector2(0, 56)
-layout_mode = 2
-text = "Кредиты за рекламу"
-
 [node name="Footer" type="HBoxContainer" parent="Margin/Rows"]
 layout_mode = 2
 theme_override_constants/separation = 16

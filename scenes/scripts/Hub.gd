@@ -1,12 +1,12 @@
 extends Control
-## Hub: hero select / unlock, skill tree (3 branches, data/meta_tree.json), shop (signature
-## item tiers, IAP stubs, rewarded ad) and run start / continue. Reads meta state only from
+## Hub: hero select / unlock, skill tree (3 branches, data/meta_tree.json), workshop (signature
+## item tiers) and run start / continue. Reads meta state only from
 ## Signals.meta_changed and sends intents back through Signals.
 
 const Db = preload("res://core/Db.gd")
 const Fmt = preload("res://core/Fmt.gd")
 const CARD_SCENE: PackedScene = preload("res://scenes/ui/components/ItemCard.tscn")
-const TAB_TITLES: Array[String] = ["Герои", "Древо навыков", "Магазин"]
+const TAB_TITLES: Array[String] = ["Герои", "Древо навыков", "Мастерская"]
 const HERO_CARD_SIZE: Vector2 = Vector2(420, 230)
 const NODE_HEIGHT: float = 96.0
 const STATE_MAXED: String = "maxed"
@@ -24,8 +24,6 @@ var _meta: Dictionary = {}
 @onready var _tree: HBoxContainer = $Margin/Rows/Tabs/Tree
 @onready var _signature_text: Label = $Margin/Rows/Tabs/Shop/Signature/Text
 @onready var _signature_button: Button = $Margin/Rows/Tabs/Shop/Signature/Upgrade
-@onready var _products: GridContainer = $Margin/Rows/Tabs/Shop/Products
-@onready var _ad_button: Button = $Margin/Rows/Tabs/Shop/Ad
 @onready var _toast: Label = $Margin/Rows/Footer/Toast
 @onready var _continue: Button = $Margin/Rows/Footer/Continue
 @onready var _start: Button = $Margin/Rows/Footer/Start
@@ -40,7 +38,6 @@ func _ready() -> void:
 	_start.pressed.connect(_on_start)
 	_continue.pressed.connect(func() -> void: Signals.run_continue_requested.emit())
 	_signature_button.pressed.connect(func() -> void: Signals.starting_item_upgrade_requested.emit(Db.s(_meta, "selected_hero")))
-	_ad_button.pressed.connect(func() -> void: Signals.ad_rewarded_requested.emit("hub_bonus"))
 	_toast.text = ""
 	MetaState.emit_all()
 
@@ -171,7 +168,7 @@ func _node_state(node: Dictionary, level: int) -> String:
 	return STATE_READY if Db.i(_meta, "currency") >= _node_cost(node, level) else STATE_POOR
 
 
-# ---------------------------------------------------------------- shop
+# ---------------------------------------------------------------- workshop
 
 func _refresh_shop() -> void:
 	var hero: Dictionary = Db.entry("heroes", "heroes", Db.s(_meta, "selected_hero"))
@@ -184,19 +181,3 @@ func _refresh_shop() -> void:
 	]
 	_signature_button.text = "Максимум" if maxed else "Улучшить за %d" % int(Db.num(costs[tier - 1]))
 	_signature_button.disabled = maxed or Db.i(_meta, "currency") < int(Db.num(costs[mini(tier - 1, costs.size() - 1)]))
-	_refresh_products()
-	var reward: Dictionary = Db.d(Db.d(Db.d(Db.table("iap"), "ads"), "rewarded"), "hub_bonus")
-	_ad_button.text = "%s: +%d" % [Db.s(reward, "name"), Db.i(reward, "currency")]
-
-
-func _refresh_products() -> void:
-	_clear(_products)
-	for product: Variant in Db.list("iap", "products"):
-		var sku: String = Db.s(product, "sku")
-		var button: Button = Button.new()
-		button.custom_minimum_size = Vector2(0, NODE_HEIGHT * 0.7)
-		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		button.text = "%s — %s\n%s" % [Db.s(product, "name"), Db.s(product, "price"), Db.s(product, "desc")]
-		button.disabled = sku == "no_ads" and bool(_meta.get("no_ads", false))
-		button.pressed.connect(func() -> void: Signals.purchase_requested.emit(sku))
-		_products.add_child(button)

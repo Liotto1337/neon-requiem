@@ -16,7 +16,7 @@ All art is procedural (Polygon2D / Line2D / generated tile atlas), so no PNG is 
   - `SaveManager` does save I/O with versions and migrations; `TimeService` gives unix time and the pausable run clock.
   - `SpawnDirector`, `WaveDirector` and `DamageCalc` are PURE: inputs in, results out, no node or GameState references.
   - `ItemSystem`, `AbilitySystem` and `LootRoller` hold the item / ability / loot rules.
-  - `InputMapHelper` handles rebindable actions; `AudioBus`, `IAP` and `AdManager` are stubs.
+  - `InputMapHelper` handles rebindable actions; `AudioBus` is a stub. There is no monetization (no purchases, no ads).
 - `core/` holds static helpers: `Db` (JSON tables), `Fmt` (text), `Neon` (procedural neon shapes).
 - `scenes/`
   - `Hub.tscn` and `Run.tscn` are the two top-level scenes (scripts in `scenes/scripts/`, plus `RunSpawner`).
@@ -24,7 +24,7 @@ All art is procedural (Polygon2D / Line2D / generated tile atlas), so no PNG is 
   - `ui/`: `HUD`, `LevelUpModal`, `InventoryOverlay`, `PauseMenu`, `GameOverModal`, `LoopChoiceModal`, `HeroDraftModal`. Components: `AbilitySlot`, `ItemCard`, `StatRow`, `ModalBase`.
   - `fx/`: `EliteOutline.gdshader` (one outline shader for every enemy, coloured by elite modifiers), `DamageNumber`, `ScreenShake`.
   - `Locations/`: five TileMapLayer scenes (`NeonSlums`, `DataCore`, `ChromeGardens`, `AshenRail`, `RequiemSpire`) with `LocationBase.gd` and per-location flavour scripts. `tiles/` holds the generated atlas and TileSet.
-- `data/`: config, heroes, abilities, items (with recipes), enemies, elites, bosses, locations, meta_tree, difficulty, iap, tiles.
+- `data/`: config, heroes, abilities, items (with recipes), enemies, elites, bosses, locations, meta_tree, difficulty, tiles.
 - `tools/`: world builder, lint, strict compile check, smoke and soak tests.
 - `TILE_SPEC.md` is the tile art spec (ids, atlas coords, collision, layers).
 - `obsidian/` is the project map for Obsidian.
@@ -49,7 +49,7 @@ WASD moves, the mouse aims, LMB attacks, RMB fires the empowered attack. R reloa
 
 ## Export
 
-- **Web (Yandex Games):** add the *Web* preset with the GL Compatibility renderer (already set) and Thread Support off. Add `data/*.json` to *Filters to export non-resource files*. Export `index.html` and zip the build folder with `index.html` at the root. The window is not fullscreen on Web (`window/size/mode.web=0`). Replace the `_platform_*` stubs in `IAP.gd` / `AdManager.gd` with the Yandex SDK bridge to go live.
+- **Web (Yandex Games):** add the *Web* preset with the GL Compatibility renderer (already set) and Thread Support off. Add `data/*.json` to *Filters to export non-resource files*. Export `index.html` and zip the build folder with `index.html` at the root. The window is not fullscreen on Web (`window/size/mode.web=0`).
 - **Windows:** add the *Windows Desktop* preset with the same `data/*.json` filter. The game starts fullscreen 1920x1080.
 
 ## Verification

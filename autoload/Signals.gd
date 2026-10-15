@@ -76,12 +76,3 @@ signal run_continue_requested
 # Audio
 signal mute_toggle_requested(bus_name: String)
 signal audio_mute_changed(bus_name: String, muted: bool)
-
-# Monetization
-signal purchase_requested(sku: String)
-signal purchase_completed(sku: String)
-signal purchase_failed(sku: String, reason: String)
-signal ad_rewarded_requested(placement: String)
-signal ad_rewarded_completed(placement: String)
-signal ad_interstitial_closed
-signal ad_failed(kind: String, reason: String)
