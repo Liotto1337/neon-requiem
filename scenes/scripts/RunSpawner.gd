@@ -56,7 +56,7 @@ func enemy_count() -> int:
 
 func boss_alive(kind: String) -> bool:
 	var node: Variant = _alive_bosses.get(kind)
-	return node is Node and is_instance_valid(node) and not bool((node as Node).call("is_dead"))
+	return is_instance_valid(node) and node is Node and not bool((node as Node).call("is_dead"))
 
 
 func _scaling() -> Dictionary:

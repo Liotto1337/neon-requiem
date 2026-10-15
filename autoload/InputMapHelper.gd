@@ -2,6 +2,7 @@ extends Node
 ## Rebindable input actions. Defaults live in config.json "input" (also pre-registered in
 ## project.godot); player overrides are stored in user://input_map.json and applied on boot.
 ## Codes: "key:W" (physical key, layout independent) and "mouse:1" (button index).
+## Also owns the global F11 fullscreen toggle (works in every scene, paused or not).
 
 const Db = preload("res://core/Db.gd")
 const OVERRIDES_PATH: String = "user://input_map.json"
@@ -13,8 +14,17 @@ var _overrides: Dictionary = {}
 
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	_ensure_defaults()
 	_load_overrides()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("toggle_fullscreen"):
+		var mode: DisplayServer.WindowMode = DisplayServer.window_get_mode()
+		var full: bool = mode == DisplayServer.WINDOW_MODE_FULLSCREEN or mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED if full else DisplayServer.WINDOW_MODE_FULLSCREEN)
+		get_viewport().set_input_as_handled()
 
 
 func ability_action(slot: int) -> String:

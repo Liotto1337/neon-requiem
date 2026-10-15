@@ -52,7 +52,7 @@ func _draw() -> void:
 	var names: Array = Db.a(Db.table("difficulty"), "names")
 	var current: int = current_index()
 	for i: int in names.size():
-		var start: float = _tier_x(Db.f(names[i], "from_tier"))
+		var start: float = _tier_x(Db.f(names[i], "from_tier")) if i > 0 else -4.0
 		var end: float = _tier_x(Db.f(names[i + 1], "from_tier")) if i + 1 < names.size() else w + 4.0
 		if end < 0.0 or start > w:
 			continue

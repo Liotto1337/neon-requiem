@@ -57,8 +57,8 @@ WASD moves, the mouse aims, LMB attacks, RMB fires the empowered attack. R reloa
 
 ## Export
 
-- **Web (Yandex Games):** add the *Web* preset with the GL Compatibility renderer (already set) and Thread Support off. Add `data/*.json` to *Filters to export non-resource files*. Export `index.html` and zip the build folder with `index.html` at the root. The window is not fullscreen on Web (`window/size/mode.web=0`).
-- **Windows:** add the *Windows Desktop* preset with the same `data/*.json` filter. The game starts fullscreen 1920x1080.
+- **Web (Yandex Games, later on the `feature` branch):** add the *Web* preset with the GL Compatibility renderer (already set) and Thread Support off. Add `data/*.json` to *Filters to export non-resource files*. Export `index.html` and zip the build folder with `index.html` at the root. The window is not fullscreen on Web (`window/size/mode.web=0`).
+- **Windows:** the *Windows Desktop* preset is committed (`export_presets.cfg`: x86_64, PCK embedded in one exe, `data/*.json` included, `tools/` and `obsidian/` excluded). `GODOT=/path/to/Godot_v4.7 tools/export_windows.sh` builds `export/NeonRequiem-windows.zip` (needs the 4.7.2 export templates). The game starts fullscreen; F11 toggles windowed mode.
 
 ## Verification
 

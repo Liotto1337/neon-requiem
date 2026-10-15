@@ -200,7 +200,7 @@
 		"item_6": ["key:6"],
 		"item_7": ["key:7"],
 		"pause_esc": ["key:Escape"],
-		"inventory_tab": ["key:Tab"], "interact": ["key:E"],
+		"inventory_tab": ["key:Tab"], "interact": ["key:E"], "toggle_fullscreen": ["key:F11"],
 		"debug_skip": ["key:F10"],
 		"debug_xp": ["key:F9"]
 	},

@@ -142,6 +142,28 @@ def build_icons(review: Path | None, manifest: dict) -> None:
             pixlib.preview(images, 2, columns=10).save(review / ("icons_%s.png" % kind))
 
 
+def build_app_icon() -> None:
+    """Windows / window icon: Vector's idle frame (x3) on a neon framed tile, as PNG and ICO."""
+    entry = load_manifest().get("heroes/vector")
+    if not entry:
+        return
+    sheet = Image.open(ROOT / entry["texture"].replace("res://", "")).convert("RGBA")
+    fw, fh = entry["frame"]
+    frame = sheet.crop((0, 0, fw, fh))
+    bbox = frame.getbbox()
+    hero = frame.crop(bbox).resize(((bbox[2] - bbox[0]) * 3, (bbox[3] - bbox[1]) * 3), Image.NEAREST)
+    c = pixlib.Canvas(256, 256)
+    c.paint(c.rect(4, 4, 248, 248, 40), ["#07040e", "#120a22", "#1c1030", "#26163e"], style="bevel", depth=24)
+    c.flat(c.rect(4, 4, 248, 248, 40).minus(c.rect(12, 12, 232, 232, 34)), "#ff2e88")
+    c.flat(c.rect(16, 16, 224, 224, 32).minus(c.rect(19, 19, 218, 218, 30)), "#00f0ff")
+    icon = c.image()
+    icon.alpha_composite(hero, ((256 - hero.size[0]) // 2, max(8, 248 - hero.size[1])))
+    folder = ROOT / "assets/icons/app"
+    folder.mkdir(parents=True, exist_ok=True)
+    icon.save(folder / "icon.png", optimize=True)
+    icon.save(folder / "icon.ico", sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)])
+
+
 def _rig_animate() -> Path:
     base = Path(os.environ.get("CODEART2D", Path.home() / ".claude/skills/codeart2d"))
     tool = base / "scripts/rig_animate.py"
@@ -222,6 +244,7 @@ def main(argv: list[str]) -> int:
         builders[group](review, manifest)
         print("art: %s done" % group)
     save_manifest(manifest)
+    build_app_icon()
     return 0
 
 

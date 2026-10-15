@@ -45,6 +45,7 @@ func _run() -> void:
 	_finish_draft()
 	await _frames(20)
 	await _shot("02_start")
+	await _reload_run()
 	_spawn_crowd()
 	await _combat(90)
 	await _shot("03_combat")
@@ -53,6 +54,23 @@ func _run() -> void:
 	await _shot("04_boss")
 	await _hud_and_reload()
 	get_tree().quit()
+
+
+## Reload while running left, before the crowd arrives: reload_run clip + reload bar.
+func _reload_run() -> void:
+	Input.action_press("attack_lmb")
+	await _frames(4)
+	Input.action_release("attack_lmb")
+	Input.action_press("move_wasd_left")
+	await _frames(6)
+	Input.action_press("reload_r")
+	await _frames(2)
+	Input.action_release("reload_r")
+	await _frames(3)
+	await _shot("02b_reload_run")
+	Input.action_release("move_wasd_left")
+	await _frames(3)
+	await _shot("02c_reload_stand")
 
 
 ## Hit through the QA invulnerability to catch the ghost chunk, then a reload on the move.

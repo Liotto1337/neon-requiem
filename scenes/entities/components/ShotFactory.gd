@@ -94,7 +94,7 @@ static func query_bodies(world: World2D, center: Vector2, radius: float, mask: i
 	var out: Array = []
 	for result: Dictionary in world.direct_space_state.intersect_shape(params, Db.cfg_i("combat.query_max_results")):
 		var collider: Variant = result.get("collider")
-		if collider is Node2D and is_instance_valid(collider) and (collider as Node2D).has_method("receive_hit"):
+		if is_instance_valid(collider) and collider is Node2D and (collider as Node2D).has_method("receive_hit"):
 			out.append(collider)
 	return out
 

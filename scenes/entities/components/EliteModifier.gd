@@ -85,7 +85,7 @@ func _pulse_aura(effect: Dictionary) -> void:
 
 func _antiheal_proximity(effect: Dictionary) -> void:
 	var target: Variant = _enemy.get("target")
-	if not target is Node2D or not is_instance_valid(target):
+	if not is_instance_valid(target) or not target is Node2D:
 		return
 	if (target as Node2D).global_position.distance_to(_enemy.global_position) <= Db.f(effect, "aura_radius"):
 		GameState.apply_antiheal(Db.f(effect, "aura_refresh_sec") * 2.0)

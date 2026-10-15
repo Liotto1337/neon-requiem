@@ -167,7 +167,7 @@ func receive_hit(hit: Dictionary) -> Dictionary:
 
 ## Thorns back to the attacker and the vampiric callback for elites.
 func _answer_attacker(attacker: Variant, result: Dictionary) -> void:
-	if not attacker is Node2D or not is_instance_valid(attacker):
+	if not is_instance_valid(attacker) or not attacker is Node2D:
 		return
 	var node: Node2D = attacker
 	if node.has_method("on_damage_dealt"):
